@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "794933169025",
+    "firebase_url": "https://gameid-2020.firebaseio.com",
+    "project_id": "gameid-2020",
+    "storage_bucket": "gameid-2020.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794933169025:android:87355b0d80eedd65a63680",
+        "android_client_info": {
+          "package_name": "com.mobile.gameid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "794933169025-v52vq9663vr57dfgl3d83erf06o3o0ab.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6xuYnO0V6uSfgFm4OthDKoBIKZgESccM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "794933169025-v52vq9663vr57dfgl3d83erf06o3o0ab.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

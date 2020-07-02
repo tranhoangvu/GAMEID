@@ -1,0 +1,57 @@
+{
+  "name": "GAMEID",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@react-native-community/async-storage": "^1.11.0",
+    "@react-native-community/google-signin": "^4.0.3",
+    "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-community/netinfo": "^5.9.4",
+    "@react-native-community/viewpager": "^4.0.1",
+    "immutable": "^4.0.0-rc.12",
+    "key-mirror": "^1.0.1",
+    "md5": "^2.2.1",
+    "native-base": "^2.13.12",
+    "react": "16.11.0",
+    "react-native": "0.62.2",
+    "react-native-country-picker-modal": "^1.11.0",
+    "react-native-datepicker-ios": "0.0.4",
+    "react-native-device-info": "^5.6.1",
+    "react-native-fbsdk": "^2.0.0",
+    "react-native-firebase": "^5.6.0",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-onesignal": "^3.8.1",
+    "react-native-reanimated": "^1.9.0",
+    "react-native-safe-area-context": "^3.0.7",
+    "react-native-screens": "^2.9.0",
+    "react-native-vector-icons": "^6.6.0",
+    "react-native-webview": "^10.3.2",
+    "react-navigation": "^4.4.0",
+    "react-navigation-drawer": "^2.5.0",
+    "react-navigation-stack": "^2.8.2",
+    "react-navigation-tabs": "^2.9.0",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/runtime": "^7.6.2",
+    "@react-native-community/eslint-config": "^0.0.5",
+    "babel-jest": "^24.9.0",
+    "eslint": "^6.5.1",
+    "jest": "^24.9.0",
+    "metro-react-native-babel-preset": "^0.58.0",
+    "react-test-renderer": "16.11.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
