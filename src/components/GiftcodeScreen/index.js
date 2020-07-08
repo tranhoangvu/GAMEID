@@ -74,9 +74,9 @@ class GiftcodeScreen extends Component {
     gameGiftcodeList() {
         return (
             <View style={{ flex: 1 }}>
-                <List 
-                    dataArray={this.props.appGameList.gameGiftList} 
-                    renderRow={rowData => 
+                <List
+                    dataArray={this.props.appGameList.gameGiftList}
+                    renderRow={rowData =>
                         <ListItem style={{ paddingTop: 0, paddingBottom: 0, height: 150 }}>
                             <TouchableOpacity
                                 style={styles.row}
@@ -93,8 +93,8 @@ class GiftcodeScreen extends Component {
         )
     }
 
-    giftcodeDetail(game_id, game_name){
-        this.props.navigation.navigate("GiftcodeDetail", { game_id: game_id, game_name: game_name});
+    giftcodeDetail(game_id, game_name) {
+        this.props.navigation.navigate("GiftcodeDetail", { game_id: game_id, game_name: game_name });
     }
 
     gameGiftListNull() {
@@ -121,7 +121,7 @@ class GiftcodeScreen extends Component {
                     <Left>
                         <Button
                             transparent
-                            onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+                            onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="menu" />
                         </Button>
                     </Left>

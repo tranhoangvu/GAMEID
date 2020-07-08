@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert} from 'react-native';
+import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View, Badge } from "native-base";
 import { connect } from "react-redux";
 import AppLink from '../../lib/appLink.js';
@@ -37,7 +37,7 @@ class GameListScreen extends Component {
     //         />
     //     )
     // }
-    
+
     componentDidMount() {
     }
 
@@ -169,7 +169,7 @@ class GameListScreen extends Component {
                     <Left>
                         <Button
                             transparent
-                            onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+                            onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="menu" />
                         </Button>
                     </Left>

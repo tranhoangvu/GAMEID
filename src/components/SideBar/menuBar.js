@@ -119,7 +119,7 @@ class MenuBar extends React.Component {
     componentDidMount() {
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
     }
 
     localAvatar() {
@@ -169,11 +169,25 @@ class MenuBar extends React.Component {
     }
 
     userLogout() {
-        if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
-            LoginManager.logOut();
-        } else {
-            GoogleSignin.signOut();
+        const provider = this.props.myUserProfile.userProfile.providerData[0].providerId;
+        console.log('provider: ' + provider);
+        switch (provider) {
+            case 'facebook.com':
+                LoginManager.logOut();
+                break;
+            case 'google.com':
+                console.log('aaaa');
+                GoogleSignin.revokeAccess();
+                GoogleSignin.signOut();
+                break;
+            default:
+                console.log('logout nothing')
         }
+        // if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
+        //     LoginManager.logOut();
+        // } else {
+        //     GoogleSignin.signOut();
+        // }
         firebase.auth().signOut();
         this.props.actions.logout();
         refeshData("3");

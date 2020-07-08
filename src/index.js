@@ -225,8 +225,8 @@ export default class App extends Component {
             state => { this.handelConnectivityChange }
         );
         NetInfo.fetch().then(state => {
-            console.log("Connection type", state.type);
-            console.log("Is connected?", state.isConnected);
+            // console.log("Connection type", state.type);
+            // console.log("Is connected?", state.isConnected);
             if (state.isConnected) this.setState({ isConnected: 'true' });
         });
         setTimeout(() => {
@@ -286,7 +286,7 @@ export default class App extends Component {
         if (currentUser) {
             if (store.getState().auth.isAuth === false) {
                 store.dispatch(authActions.login(currentUser));
-                console.log(currentUser.toJSON());
+                console.log('onUserChanged: ' + JSON.stringify(currentUser));
                 console.log("Đã đăng nhập");
                 this.setState({ isLogin: true, userProfile: currentUser });
             }

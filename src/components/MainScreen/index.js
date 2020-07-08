@@ -52,7 +52,7 @@ export default (HomeScreenNavigator = createBottomTabNavigator(
                             active={props.navigation.state.index === 1}
                             onPress={() => props.navigation.navigate("Games")}
                         >
-                            <Icon name="game-controller-b" />
+                            <Icon name="logo-game-controller-b" />
                             <Text>Game</Text>
                         </Button> : null}
                         {releaseStatus() ? <Button

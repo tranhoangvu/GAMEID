@@ -138,14 +138,15 @@ export class MyBagScreen extends Component {
                     </Body>
                     <Right />
                 </Header>
-                <Tabs>
+                <MyGiftcode />
+                {/* <Tabs>
                     <Tab heading="Giftcode">
                         <MyGiftcode />
                     </Tab>
                     <Tab heading="Mã thẻ Scoin">
                         < MyCard />
                     </Tab>
-                </Tabs>
+                </Tabs> */}
 
                 {/* <Content refreshControl={this._refreshControl()} >
                     {isAuth ? (

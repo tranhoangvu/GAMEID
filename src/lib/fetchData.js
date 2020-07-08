@@ -63,6 +63,10 @@ export async function getAdsListData(store) {
 
     await fetch(apiURL + 'adslist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -124,6 +128,10 @@ export async function getGameListData(store) {
 
     await fetch(apiURL + 'gamelist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -150,6 +158,10 @@ export async function getGameH5ListData(store) {
 
     await fetch(apiURL + 'gameh5_list_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -177,6 +189,10 @@ export async function getGiftListData(store) {
 
     await fetch(apiURL + 'giftlist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -185,7 +201,7 @@ export async function getGiftListData(store) {
             if (!releaseStatus()) store.dispatch(getGiftList(null));
         })
         .catch((err) => {
-            console.log(err);
+            console.log('getGiftListData: ' + err);
             store.dispatch(getGiftList(null));
         });
 }
@@ -204,6 +220,10 @@ export async function getNotificationListData(store) {
 
     await fetch(apiURL + 'usermesslist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -231,6 +251,10 @@ export async function getUserGiftListData(store) {
 
     await fetch(apiURL + 'usergiftlist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -257,6 +281,10 @@ export async function getUserTransactionListData(store) {
 
     await fetch(apiURL + 'usertransactionlist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -284,6 +312,10 @@ export async function getUserCardListData(store) {
 
     await fetch(apiURL + 'usercardlist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -311,6 +343,10 @@ export async function userCountMessData(store) {
 
     await fetch(apiURL + 'usercountmess_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -363,6 +399,10 @@ export async function setUserProfileData(store) {
 
     await fetch(apiURL + 'newuser_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -390,6 +430,10 @@ export function updateEmailVerifiedData(store) {
 
     fetch(apiURL + 'update_email_verified_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -418,6 +462,10 @@ export function updateTransactionData(store, transactionID) {
 
     fetch(apiURL + 'update_transaction_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -445,6 +493,10 @@ export function updatePhoneNumberData(store, phoneNumber) {
     if (phoneNumber !== null) {
         fetch(apiURL + 'update_phone_number_react', {
             method: 'POST',
+            header: {
+                'Accept': 'application/json',
+                'Content-type': 'application/x-www-form-urlencoded'
+            },
             body: formData //JSON.stringify(body)
         })
             .then((response) => response.json())
@@ -477,6 +529,10 @@ export function updateFirebaseTokenData(store) {
     if (device_firebase_token !== '') {
         fetch(apiURL + 'update_firebase_token_react', {
             method: 'POST',
+            header: {
+                'Accept': 'application/json',
+                'Content-type': 'application/x-www-form-urlencoded'
+            },
             body: formData //JSON.stringify(body)
         })
             .then((response) => response.json())
@@ -503,6 +559,10 @@ export async function getGameGiftListData(store) {
 
     await fetch(apiURL + 'gamegiftlist_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
@@ -528,6 +588,10 @@ export function getGiftCode(user_uid, giftcode_event_id, key, device_id, apiURL)
 
     fetch(apiURL + 'getgift_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData
     })
         .then((response) => response.json())
@@ -552,6 +616,10 @@ export function readNotifi(user_uid, key, device_id, apiURL) {
 
     fetch(apiURL + 'update_mess_react', {
         method: 'POST',
+        header: {
+            'Accept': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
         body: formData
     })
         .then((response) => response.json())

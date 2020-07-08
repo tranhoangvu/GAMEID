@@ -31,14 +31,14 @@ const screen = Dimensions.get('window');
 class GiftcodeDetailScreen extends Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             dialogShow: false,
             shareLinkContent: '',
-            giftcodeData: '', 
+            giftcodeData: '',
             uid: '',
             key: '',
-            uniqueId:'',
+            uniqueId: '',
             ModalVisibleStatus: false,
             refreshing: false,
         };
@@ -68,7 +68,7 @@ class GiftcodeDetailScreen extends Component {
 
     componentDidMount() {
     }
-    
+
     showSlideAnimationDialog(rowData) {
         if (this.props.appUser.isAuth) {
             const shareLinkContent = {
@@ -76,20 +76,21 @@ class GiftcodeDetailScreen extends Component {
                 contentUrl: rowData.game_link_share,
                 contentDescription: rowData.game_name,
             };
-            this.setState({ giftcodeData: rowData, 
-                            shareLinkContent: shareLinkContent,
-                            uid: this.props.appUser.userProfile.uid,
-                            key: this.props.appFire.firebaseConfig.vtcapp_secure_key,
-                            uniqueId: this.props.appDevice.uniqueId
-                        });
+            this.setState({
+                giftcodeData: rowData,
+                shareLinkContent: shareLinkContent,
+                uid: this.props.appUser.userProfile.uid,
+                key: this.props.appFire.firebaseConfig.vtcapp_secure_key,
+                uniqueId: this.props.appDevice.uniqueId
+            });
             this.ShowModalFunction(true);
-        }else{
+        } else {
             console.log("Chưa đăng nhập");
             this.error_login();
         }
     }
 
-    error_login(){
+    error_login() {
         Alert.alert(
             'Thông báo',
             'Bạn chưa đăng nhập, vui lòng đăng nhập để nhận Code!',
@@ -100,42 +101,42 @@ class GiftcodeDetailScreen extends Component {
         )
     }
 
-    giftcodeDialog(){
+    giftcodeDialog() {
         var modalBackgroundStyle = {
             backgroundColor: this.state.ModalVisibleStatus ? 'rgba(0, 0, 0, 0.5)' : '#f5fcff',
         };
-       return(
-           <View style={styles.MainContainer}>
-           <Modal
-                transparent={true}
-                animationType={"fade"}
-                visible={this.state.ModalVisibleStatus}
-                supportedOrientations={['portrait', 'landscape']}
-                onRequestClose={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }} >
-                <View style={[styles.containerModal, modalBackgroundStyle]}>
-                   <View style={styles.ModalInsideView}>
-                           <Image source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + this.state.giftcodeData.game_cover_link }} style={{
-                               height: 125,
-                               width: '100%',
-                               borderRadius: 10,
-                           }} />
-                           <Text style={styles.TextStyle}>{this.state.giftcodeData.giftcode_des}</Text>
-                           <View style={styles.ModalButton}>
-                               <Button transparent info onPress={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }}>
+        return (
+            <View style={styles.MainContainer}>
+                <Modal
+                    transparent={true}
+                    animationType={"fade"}
+                    visible={this.state.ModalVisibleStatus}
+                    supportedOrientations={['portrait', 'landscape']}
+                    onRequestClose={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }} >
+                    <View style={[styles.containerModal, modalBackgroundStyle]}>
+                        <View style={styles.ModalInsideView}>
+                            <Image source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + this.state.giftcodeData.game_cover_link }} style={{
+                                height: 125,
+                                width: '100%',
+                                borderRadius: 10,
+                            }} />
+                            <Text style={styles.TextStyle}>{this.state.giftcodeData.giftcode_des}</Text>
+                            <View style={styles.ModalButton}>
+                                <Button transparent onPress={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }}>
                                     <Text>Đóng</Text>
                                 </Button>
-                               <Button transparent onPress={() => { this.getCode() }}>
+                                <Button transparent onPress={() => { this.getCode() }}>
                                     <Text>Nhận code</Text>
                                 </Button>
-                           </View>
-                   </View>
-               </View>
-           </Modal>
-           </View>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
         )
     }
 
-    getCode(){
+    getCode() {
         this.ShowModalFunction(!this.state.ModalVisibleStatus)
         switch (this.state.giftcodeData.event_type_id) {
             case "1":
@@ -154,7 +155,7 @@ class GiftcodeDetailScreen extends Component {
             case "4":
                 console.log("case 4")
                 break;
-        
+
             default:
                 break;
         }
@@ -199,7 +200,7 @@ class GiftcodeDetailScreen extends Component {
 
     giftcodeList() {
         const newData = [];
-        if (this.props.appGameList.giftList !== null){
+        if (this.props.appGameList.giftList !== null) {
             for (let newVar of this.props.appGameList.giftList) {
                 if (newVar.game_id === this.props.navigation.state.params.game_id) {
                     newData.push(newVar)
@@ -210,29 +211,29 @@ class GiftcodeDetailScreen extends Component {
             return this.giftListNull()
         }
         return (
-            <View>  
+            <View>
                 <List dataArray={newData}
                     renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0}}>
+                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
                             <TouchableOpacity
                                 style={styles.row}
                                 onPress={() => { this.showSlideAnimationDialog(rowData); }}
                                 activeOpacity={0.7}
                             >
-                            <Left>
-                                <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} />
-                            </Left>
-                            <Body>
-                                <Text style={{ fontSize: 16 }}>{rowData.giftcode_event_name}</Text>
-                                <Text style={{ fontSize: 14 }}>Thời hạn: {rowData.giftcode_event_end_date}</Text>
-                                <Text style={{ fontSize: 14 }}>Còn lại: {rowData.remain_giftcode}/{rowData.total_giftcode}</Text>
-                            </Body>
-                            <Right>
-                                <Button transparent onPress={() => { this.showSlideAnimationDialog(rowData);}}>
+                                <Left>
+                                    <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} />
+                                </Left>
+                                <Body>
+                                    <Text style={{ fontSize: 16 }}>{rowData.giftcode_event_name}</Text>
+                                    <Text style={{ fontSize: 14 }}>Thời hạn: {rowData.giftcode_event_end_date}</Text>
+                                    <Text style={{ fontSize: 14 }}>Còn lại: {rowData.remain_giftcode}/{rowData.total_giftcode}</Text>
+                                </Body>
+                                <Right>
+                                    <Button transparent onPress={() => { this.showSlideAnimationDialog(rowData); }}>
                                         <Text style={{ fontSize: 14 }}>Nhận</Text>
-                                </Button>
-                            </Right>
-                                </TouchableOpacity>
+                                    </Button>
+                                </Right>
+                            </TouchableOpacity>
                         </ListItem>
                     }
                 />
@@ -273,12 +274,12 @@ class GiftcodeDetailScreen extends Component {
                 </Header>
                 <Content refreshControl={this._refreshControl()} >
                     <View style={styles.giftview}>
-                    {this.giftcodeDialog()}
-                    {isGiftList ? ( 
+                        {this.giftcodeDialog()}
+                        {isGiftList ? (
                             this.giftListView()
-                    ) : (
-                            this.loading()
-                        )}
+                        ) : (
+                                this.loading()
+                            )}
                     </View>
                 </Content>
             </Container>

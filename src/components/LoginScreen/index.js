@@ -8,12 +8,12 @@ import * as authActions from '../../reducers/auth/authActions';
 import firebase from 'react-native-firebase';
 
 // import { GoogleSignin } from 'react-native-google-signin';
-import { GoogleSignin } from '@react-native-community/google-signin';
+import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
 import { AccessToken, LoginManager } from 'react-native-fbsdk';
 
 import { refeshData } from '../../index.js';
 
-const logoLaza = require("../../assets/images/logo_laza.png");
+const logoGameID = require("../../assets/images/logo_gameid.png");
 const drawerCover = require("../../assets/images/background.jpg");
 const btFacebook = require("../../assets/images/facebook_login.png");
 const btGoogle = require("../../assets/images/google_login.png");
@@ -35,6 +35,7 @@ class LoginScreen extends Component {
             'namedOrientationDidChange', this._onOrientationChange,
         );
     }
+
     componentWillUnmount() {
         this._orientationSubscription.remove();
     }
@@ -86,11 +87,26 @@ class LoginScreen extends Component {
     }
 
     userLogout() {
-        if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
-            LoginManager.logOut();
-        } else {
-            GoogleSignin.signOut();
+        const provider = this.props.myUserProfile.userProfile.providerData[0].providerId;
+        switch (provider) {
+            case 'facebook.com':
+                LoginManager.logOut();
+                break;
+            case 'google.com':
+                GoogleSignin.revokeAccess();
+                GoogleSignin.signOut();
+                break;
+            default:
+                console.log('logout nothing')
         }
+
+        // if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
+        //     LoginManager.logOut();
+        // } else {
+        //     await GoogleSignin.revokeAccess();
+        //     await GoogleSignin.signOut();
+        // }
+
         firebase.auth().signOut();
         this.props.actions.logout();
         refeshData("3");
@@ -104,10 +120,74 @@ class LoginScreen extends Component {
         )
     }
 
-    facebookLogin() {
+    facebookLogin = async () => {
         this.ShowModalFunction(true);
+        // try {
+        //     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+        //     if (result.isCancelled) {
+        //         // handle this however suites the flow of your app
+        //         Alert.alert(
+        //             'Thông báo',
+        //             'Bạn đã hủy đăng nhập, vui lòng đăng nhập lại!',
+        //             [{
+        //                 text: 'OK',
+        //                 onPress: () => console.log('Cancel Pressed'),
+        //                 style: 'cancel'
+        //             },], {
+        //             cancelable: false
+        //         }
+        //         )
+        //         this.ShowModalFunction(false);
+        //         console.error('User cancelled request');
+        //         // throw new Error('User cancelled request');
+        //     }
+        //     console.log(`Login success with permissions: ${result.grantedPermissions.toString()}`);
+
+        //     // get the access token
+        //     const data = await AccessToken.getCurrentAccessToken();
+        //     if (!data) {
+        //         // handle this however suites the flow of your app
+        //         Alert.alert(
+        //             'Thông báo',
+        //             'Đăng nhập lỗi, vui lòng kiểm tra lại thông tin email. Có thể email Facebook và Google giống nhau không thể cùng login vào ứng dụng!',
+        //             [
+        //                 { text: 'OK', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        //             ],
+        //             { cancelable: false }
+        //         )
+        //         this.ShowModalFunction(false);
+        //         console.error('Something went wrong obtaining the users access token');
+        //         // throw new Error('Something went wrong obtaining the users access token');
+        //     }
+
+        //     // create a new firebase credential with the token
+        //     const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+        //     // login with credential
+        //     const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
+
+        //     console.log(JSON.stringify(firebaseUserCredential.user.toJSON()))
+        //     this.props.actions.login(firebaseUserCredential.user);
+        //     refeshData("1");
+        //     this.ShowModalFunction(false);
+        //     this.props.navigation.goBack();
+
+        //     return firebaseUserCredential;
+        // } catch (e) {
+        //     Alert.alert(
+        //         'Thông báo',
+        //         'Đăng nhập lỗi, vui lòng kiểm tra lại thông tin email. Có thể email Facebook và Google giống nhau không thể cùng login vào ứng dụng!',
+        //         [
+        //             { text: 'OK', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        //         ],
+        //         { cancelable: false }
+        //     )
+        //     this.ShowModalFunction(false);
+        //     console.error(e);
+        // }
+
+
         return LoginManager
-            .logInWithReadPermissions(['public_profile', 'email'])
+            .logInWithPermissions(['public_profile', 'email'])
             .then((result) => {
                 if (!result.isCancelled) {
                     return AccessToken.getCurrentAccessToken()
@@ -129,7 +209,7 @@ class LoginScreen extends Component {
             .then(data => {
                 if (data) {
                     const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken)
-                    return firebase.auth().signInAndRetrieveDataWithCredential(credential)
+                    return firebase.auth().signInWithCredential(credential)
                 }
             })
             .then((currentUser) => {
@@ -154,33 +234,87 @@ class LoginScreen extends Component {
             })
     }
 
-    googleLogin() {
+    googleLogin = async () => {
         this.ShowModalFunction(true);
-        return GoogleSignin.configure({
-            iosClientId: '118928617088-j2hk1sbstoneqp0tovf2vmjs85ut5iii.apps.googleusercontent.com'
-        })
-            .then(() => {
-                GoogleSignin.signIn()
-                    .then((data) => {
-                        const credential = firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
-                        return firebase.auth().signInAndRetrieveDataWithCredential(credential)
-                    })
-                    .then((currentUser) => {
-                        this.props.actions.login(currentUser.user);
-                        refeshData("1");
-                        this.ShowModalFunction(false);
-                        this.props.navigation.goBack();
-                    })
-                    .catch((error) => {
-                        this.ShowModalFunction(false);
-                    })
-            })
+        try {
+            // add any configuration settings here:
+            await GoogleSignin.configure({
+                offlineAccess: true,
+                webClientId: '794933169025-v52vq9663vr57dfgl3d83erf06o3o0ab.apps.googleusercontent.com', // client ID of type WEB for your server(needed to verify user ID and offline access)
+                androidClientId: '794933169025-d9hpnj8ld4dq6rm4tl6fn01veip0858l.apps.googleusercontent.com',
+                scopes: ['profile', 'email']
+            });
+            await GoogleSignin.hasPlayServices();
+            const data = await GoogleSignin.signIn();
+            console.log("reached google sign " + JSON.stringify(data));
+            // create a new firebase credential with the token
+            const credential = firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
+            // login with credential
+            const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
+
+            // const currentUser = await GoogleSignin.getCurrentUser();
+            // userInfo
+            // {
+            //     idToken: string,
+            //         serverAuthCode: string,
+            //             scopes: Array < string >, // on iOS this is empty array if no additional scopes are defined
+            //                 user: {
+            //         email: string,
+            //             id: string,
+            //                 givenName: string,
+            //                     familyName: string,
+            //                         photo: string, // url
+            //                             name: string // full name
+            //     }
+            // }
+            console.log("currentUser " + JSON.stringify(firebaseUserCredential.user));
+
+            this.props.actions.login(firebaseUserCredential.user);
+            refeshData("1");
+            this.ShowModalFunction(false);
+            this.props.navigation.goBack();
+
+            return firebaseUserCredential;
+        } catch (error) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                // user cancelled the login flow
+                console.log('SIGN_IN_CANCELLED');
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                // operation (e.g. sign in) is in progress already
+                console.log('IN_PROGRESS');
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                // play services not available or outdated
+                console.log('PLAY_SERVICES_NOT_AVAILABLE');
+            } else {
+                // some other error happened
+                console.log('other ' + error.toString());
+            }
+            this.ShowModalFunction(false);
+        }
+
+        // return GoogleSignin.configure()
+        //     .then(() => {
+        //         GoogleSignin.signIn()
+        //             .then((data) => {
+        //                 const credential = firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
+        //                 return firebase.auth().signInWithCredential(credential)
+        //             })
+        //             .then((currentUser) => {
+        //                 this.props.actions.login(currentUser.user);
+        //                 refeshData("1");
+        //                 this.ShowModalFunction(false);
+        //                 this.props.navigation.goBack();
+        //             })
+        //             .catch((error) => {
+        //                 this.ShowModalFunction(false);
+        //             })
+        //     })
     }
 
     login_container() {
         return (
             <View style={styles.container}>
-                <Image source={logoLaza} style={{
+                <Image source={logoGameID} style={{
                     height: 125,
                     width: 204,
                 }} />
@@ -200,7 +334,7 @@ class LoginScreen extends Component {
     logout_container() {
         return (
             <View style={styles.container}>
-                <Image source={logoLaza} style={{
+                <Image source={logoGameID} style={{
                     height: 125,
                     width: 204,
                 }} />

@@ -1,10 +1,13 @@
 import OneSignal from 'react-native-onesignal'; // Import package from node modules
 // var _navigator; // If applicable, declare a variable for accessing your navigator object to handle payload.
-import { AppRegistry } from 'react-native';
+import { AppRegistry, YellowBox } from 'react-native';
 import App from './src/index';
 import { name as appName } from './app.json';
 
-// console.disableYellowBox = true;
+// YellowBox.ignoreWarnings([
+//     'VirtualizedLists should never be nested', // TODO: Remove when fixed
+// ])
+console.disableYellowBox = true;
 
 // OneSignal.configure({
 //     onIdsAvailable: function (device) {

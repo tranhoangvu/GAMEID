@@ -86,7 +86,7 @@ class NewsScreen extends React.Component {
         this.checkAds();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
     }
 
     componentWillUnmount() {

@@ -1,3 +1,4 @@
+apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 apply plugin: "com.android.application"
 apply plugin: "io.fabric"
 
@@ -123,7 +124,7 @@ def enableHermes = project.ext.react.get("enableHermes", false);
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-
+    ndkVersion "21.0.6113669"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -133,8 +134,8 @@ android {
         applicationId "com.mobile.gameid"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 20200709
+        versionName "3.1.0"
         multiDexEnabled true
         // manifestPlaceholders = [onesignal_app_id: "c580d75c-b7c3-4d45-92bb-30010b16f3bd",
         //                         onesignal_google_project_number: "118928617088"]
@@ -142,6 +143,14 @@ android {
     dexOptions {
         javaMaxHeapSize "4g"
     }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
     splits {
         abi {
             reset()
@@ -157,11 +166,19 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // release {
+        //     storeFile file('gameid.vn.jks')
+        //     storePassword '123456'
+        //     keyAlias 'gameid.vn'
+        //     keyPassword '123456'
+        // }
         release {
-            storeFile file('gameid.vn.jks')
-            storePassword '123456'
-            keyAlias 'gameid.vn'
-            keyPassword '123456'
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
         }
     }
     buildTypes {
@@ -171,7 +188,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://facebook.github.io/react-native/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -237,10 +254,13 @@ dependencies {
     implementation "com.google.firebase:firebase-config:17.0.0"
     implementation "com.google.firebase:firebase-auth:17.0.0"
     implementation "com.google.firebase:firebase-messaging:18.0.0"
+    implementation 'com.google.firebase:firebase-analytics:17.4.3'
+    implementation 'com.google.firebase:firebase-crashlytics:17.1.0'
     implementation 'me.leolin:ShortcutBadger:1.1.21@aar'
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.9@aar') {
         transitive = true
     }
+
 }
 
 // Run this once to be able to run the application with BUCK
@@ -251,6 +271,9 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+// Google Services Gradle plugin
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
-com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true
+// Apply the Crashlytics Gradle plugin
+// apply plugin: 'com.google.firebase.crashlytics'
+//com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true

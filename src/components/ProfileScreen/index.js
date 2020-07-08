@@ -77,7 +77,7 @@ class ProfileScreen extends React.Component {
         }
     }
 
-    confirmEmail(){
+    confirmEmail() {
         var user = firebase.auth().currentUser;
         if (user !== null) {
             if (!user.emailVerified) {
@@ -90,8 +90,8 @@ class ProfileScreen extends React.Component {
                             onPress: () => console.log('Cancel Pressed'),
                             style: 'cancel'
                         }], {
-                            cancelable: false
-                        }
+                        cancelable: false
+                    }
                     )
                 }).catch(function (error) {
                     // An error happened.
@@ -102,11 +102,11 @@ class ProfileScreen extends React.Component {
                             onPress: () => console.log('Cancel Pressed'),
                             style: 'cancel'
                         }], {
-                            cancelable: false
-                        }
+                        cancelable: false
+                    }
                     )
                 });
-            } 
+            }
             // else {
             //     Alert.alert(
             //         'Thông báo',
@@ -134,7 +134,7 @@ class ProfileScreen extends React.Component {
         // }
     }
 
-    phoneVerification(){
+    phoneVerification() {
         var user = firebase.auth().currentUser;
         // var test_phoneNumber = null;
         //this.state.phoneNumber
@@ -142,17 +142,17 @@ class ProfileScreen extends React.Component {
             if (this.state.phoneNumber === null) {
                 Alert.alert(
                     'Thông báo',
-                    'Mỗi tài khoản chỉ xác nhận 1 số điện thoại và không thể thay đổi, bạn chắn chắn chứ? ', 
+                    'Mỗi tài khoản chỉ xác nhận 1 số điện thoại và không thể thay đổi, bạn chắn chắn chứ? ',
                     [
-                        {text: 'Cập nhật',onPress: () => this.props.navigation.navigate("PhoneVerification")},
-                        {text: 'Hủy',onPress: () => console.log('Cancel Pressed'),style: 'cancel'},
-                    ], 
+                        { text: 'Cập nhật', onPress: () => this.props.navigation.navigate("PhoneVerification") },
+                        { text: 'Hủy', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    ],
                     {
                         cancelable: false
                     }
                 )
                 // this.props.navigation.navigate("PhoneVerification");
-            } 
+            }
             // else {
             //     Alert.alert(
             //         'Thông báo',
@@ -215,12 +215,13 @@ class ProfileScreen extends React.Component {
 
     userAvatar() {
         const userProfile = this.props.myUserProfile.userProfile;
+        // console.log('userAvatar: ' + userProfile.providerData[0].photoURL);
         var userAvatar = 'Đăng nhập';
         if (userProfile !== null) {
             userAvatar = this.props.myUserProfile.userProfile.providerData[0].photoURL;
             ;
-            if(this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com'){
-                userAvatar = this.props.myUserProfile.userProfile.providerData[0].photoURL+'?type=large';
+            if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
+                userAvatar = this.props.myUserProfile.userProfile.providerData[0].photoURL + '?type=large';
             }
         }
         return (
@@ -252,11 +253,25 @@ class ProfileScreen extends React.Component {
     }
 
     userLogout() {
-        if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
-            LoginManager.logOut();
-        } else {
-            GoogleSignin.signOut();
+        const provider = this.props.myUserProfile.userProfile.providerData[0].providerId;
+        console.log('provider: ' + provider);
+        switch (provider) {
+            case 'facebook.com':
+                LoginManager.logOut();
+                break;
+            case 'google.com':
+                console.log('aaaa');
+                GoogleSignin.revokeAccess();
+                GoogleSignin.signOut();
+                break;
+            default:
+                console.log('logout nothing')
         }
+        // if (this.props.myUserProfile.userProfile.providerData[0].providerId === 'facebook.com') {
+        //     LoginManager.logOut();
+        // } else {
+        //     GoogleSignin.signOut();
+        // }
         firebase.auth().signOut();
         this.props.actions.logout();
         refeshData("3");
@@ -278,12 +293,12 @@ class ProfileScreen extends React.Component {
         )
     }
 
-    myBag(){
+    myBag() {
         return (
             <ListItem icon>
-                < TouchableOpacity style = {styles.row} activeOpacity = {0.7} onPress = {() => this.checkLogin('MyBag')} >
+                < TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.checkLogin('MyBag')} >
                     <Left>
-                        < Icon name = "ios-basket-outline" />
+                        < Icon name="ios-basket" />
                     </Left>
                     <Body>
                         <Text style={styles.textLeft}>Túi Giftcode</Text>
@@ -296,12 +311,12 @@ class ProfileScreen extends React.Component {
         )
     }
 
-    myTransaction(){
+    myTransaction() {
         return (
             <ListItem icon>
-                < TouchableOpacity style = {styles.row} activeOpacity = { 0.7 } onPress = { () => this.checkLogin('Transaction') } >
+                < TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.checkLogin('Transaction')} >
                     <Left>
-                        < Icon name = "md-list" />
+                        < Icon name="md-list" />
                     </Left>
                     <Body>
                         <Text style={styles.textLeft}>Lịch sử mua thẻ</Text>
@@ -336,7 +351,7 @@ class ProfileScreen extends React.Component {
                     <Left>
                         <Button
                             transparent
-                            onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+                            onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="menu" />
                         </Button>
                     </Left>
@@ -364,88 +379,88 @@ class ProfileScreen extends React.Component {
                         </Separator>
                         <ListItem icon>
                             <TouchableOpacity style={styles.row} activeOpacity={0.7}>
-                            <Left>
-                                < Icon name = "ios-contact-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Họ tên</Text>
-                            </Body>
-                            <Right>
-                                <Text style={styles.textRight}>{this.state.displayName}</Text>
-                                <Icon name="arrow-forward" />
-                            </Right>
-                            </TouchableOpacity>
-                        </ListItem>
-                        <ListItem icon>
-                            <TouchableOpacity style={styles.row} activeOpacity={0.7}>
-                            <Left>
-                                < Icon name = "ios-mail-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Email</Text>
-                            </Body>
-                            <Right>
-                                <Text style={styles.textRight}>{this.state.email}</Text>
-                                <Icon name="arrow-forward" />
-                            </Right>
-                            </TouchableOpacity>
-                        </ListItem>
-                        <ListItem icon>
-                            <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.phoneVerification()}>
-                            <Left>
-                                < Icon name = "ios-call-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Số điện thoại</Text>
-                            </Body>
-                            <Right>
-                                <Text style={styles.textRight}>{this.props.myUserProfile.isAuth ? this.state.phoneNumber ? this.state.phoneNumber : '(Click cập nhật)': ''}</Text>
-                                <Icon name="arrow-forward" />
-                            </Right>
-                            </TouchableOpacity>
-                        </ListItem>
-                        <ListItem icon>
-                            <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.confirmEmail()}>
                                 <Left>
-                                    < Icon name = "ios-checkmark-circle-outline" />
+                                    < Icon name="ios-contact" />
                                 </Left>
                                 <Body>
-                                    <Text style={styles.textLeft}>Xác nhận Email</Text>
+                                    <Text style={styles.textLeft}>Họ tên</Text>
                                 </Body>
                                 <Right>
-                                    <Text style={styles.textRight}>{this.props.myUserProfile.isAuth ? this.state.emailVerified ? 'Đã xác thực' : '(Click xác thực)' : '' }</Text>
+                                    <Text style={styles.textRight}>{this.state.displayName}</Text>
                                     <Icon name="arrow-forward" />
                                 </Right>
                             </TouchableOpacity>
                         </ListItem>
                         <ListItem icon>
                             <TouchableOpacity style={styles.row} activeOpacity={0.7}>
-                            <Left>
-                                < Icon name = "ios-clock-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Tạo tài khoản</Text>
-                            </Body>
-                            <Right>
-                                <Timestamp time={this.state.creationTime} component={Text} format='full' style={styles.textRight} />
-                                {/* <Text>{this.state.creationTime}</Text> */}
-                                <Icon name="arrow-forward" />
-                            </Right>
+                                <Left>
+                                    < Icon name="ios-mail" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Email</Text>
+                                </Body>
+                                <Right>
+                                    <Text style={styles.textRight}>{this.state.email}</Text>
+                                    <Icon name="arrow-forward" />
+                                </Right>
+                            </TouchableOpacity>
+                        </ListItem>
+                        <ListItem icon>
+                            <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.phoneVerification()}>
+                                <Left>
+                                    < Icon name="ios-call" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Số điện thoại</Text>
+                                </Body>
+                                <Right>
+                                    <Text style={styles.textRight}>{this.props.myUserProfile.isAuth ? this.state.phoneNumber ? this.state.phoneNumber : '(Click cập nhật)' : ''}</Text>
+                                    <Icon name="arrow-forward" />
+                                </Right>
+                            </TouchableOpacity>
+                        </ListItem>
+                        <ListItem icon>
+                            <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.confirmEmail()}>
+                                <Left>
+                                    < Icon name="ios-checkmark-circle-outline" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Xác nhận Email</Text>
+                                </Body>
+                                <Right>
+                                    <Text style={styles.textRight}>{this.props.myUserProfile.isAuth ? this.state.emailVerified ? 'Đã xác thực' : '(Click xác thực)' : ''}</Text>
+                                    <Icon name="arrow-forward" />
+                                </Right>
                             </TouchableOpacity>
                         </ListItem>
                         <ListItem icon>
                             <TouchableOpacity style={styles.row} activeOpacity={0.7}>
-                            <Left>
-                                < Icon name = "ios-time-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Đăng nhập</Text>
-                            </Body>
-                            <Right>
-                                <Timestamp time={this.state.lastSignInTime} component={Text} format='full' style={styles.textRight} />
-                                {/* <Text>{this.state.lastSignInTime}</Text> */}
-                                <Icon name="arrow-forward" />
-                            </Right>
+                                <Left>
+                                    < Icon name="ios-clock" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Tạo tài khoản</Text>
+                                </Body>
+                                <Right>
+                                    <Timestamp time={this.state.creationTime} component={Text} format='full' style={styles.textRight} />
+                                    {/* <Text>{this.state.creationTime}</Text> */}
+                                    <Icon name="arrow-forward" />
+                                </Right>
+                            </TouchableOpacity>
+                        </ListItem>
+                        <ListItem icon>
+                            <TouchableOpacity style={styles.row} activeOpacity={0.7}>
+                                <Left>
+                                    < Icon name="ios-time" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Đăng nhập</Text>
+                                </Body>
+                                <Right>
+                                    <Timestamp time={this.state.lastSignInTime} component={Text} format='full' style={styles.textRight} />
+                                    {/* <Text>{this.state.lastSignInTime}</Text> */}
+                                    <Icon name="arrow-forward" />
+                                </Right>
                             </TouchableOpacity>
                         </ListItem>
                         <Separator bordered>
@@ -453,7 +468,7 @@ class ProfileScreen extends React.Component {
                         </Separator>
                         {releaseStatus() ? (
                             this.myBag()
-                        ):(null)}
+                        ) : (null)}
                         {/* {
                             releaseStatus() ? (
                                 this.myTransaction()
@@ -474,28 +489,28 @@ class ProfileScreen extends React.Component {
                         </ListItem> */}
                         <ListItem icon>
                             <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.props.navigation.navigate("Policy")}>
-                            <Left>
-                                < Icon name = "ios-hand-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Điều khoản</Text>
-                            </Body>
-                            <Right>
-                                <Icon name="arrow-forward" />
-                            </Right>
+                                <Left>
+                                    < Icon name="ios-hand" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Điều khoản</Text>
+                                </Body>
+                                <Right>
+                                    <Icon name="arrow-forward" />
+                                </Right>
                             </TouchableOpacity>
                         </ListItem>
                         <ListItem icon>
                             <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => this.props.navigation.navigate("Info")}>
-                            <Left>
-                                < Icon name = "ios-information-circle-outline" />
-                            </Left>
-                            <Body>
-                                <Text style={styles.textLeft}>Giới thiệu</Text>
-                            </Body>
-                            <Right>
-                                <Icon name="arrow-forward" />
-                            </Right>
+                                <Left>
+                                    < Icon name="ios-information-circle-outline" />
+                                </Left>
+                                <Body>
+                                    <Text style={styles.textLeft}>Giới thiệu</Text>
+                                </Body>
+                                <Right>
+                                    <Icon name="arrow-forward" />
+                                </Right>
                             </TouchableOpacity>
                         </ListItem>
                         <Separator bordered>
