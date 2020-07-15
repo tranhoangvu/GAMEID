@@ -11,6 +11,7 @@ import { GoogleSignin } from '@react-native-community/google-signin';
 import { LoginManager } from 'react-native-fbsdk';
 
 import styles from "./styles";
+import FastImage from 'react-native-fast-image';
 
 const drawerCover = require("../../assets/images/cover.jpg");
 const profileAvatar = require("../../assets/images/profile_avatar.png");
@@ -85,6 +86,12 @@ const routesReView = [
         icon: "home",
         bg: "#C5F442",
     },
+    {
+        name: "Túi Giftcode",
+        route: "MyBag",
+        icon: "basket",
+        bg: "#C5F442",
+    },
     // {
     //     name: "Hỗ trợ",
     //     route: "Support",
@@ -128,6 +135,17 @@ class MenuBar extends React.Component {
                 source={profileAvatar}
                 style={styles.avatar}
             />
+            // <FastImage
+            //     style={styles.avatar}
+            //     source={{
+            //         uri: profileAvatar,
+            //         // headers: { Authorization: '9876543210' },
+            //         priority: FastImage.priority.normal,
+            //         cache: FastImage.cacheControl.immutable,
+            //         //cache: FastImage.cacheControl.web,
+            //         //cache: FastImage.cacheControl.cacheOnly,
+            //     }}
+            // />
         )
     }
 
@@ -141,10 +159,22 @@ class MenuBar extends React.Component {
             }
         }
         return (
-            <Thumbnail
-                source={{ uri: userAvatar }}
+            // <Thumbnail
+            //     source={{ uri: userAvatar }}
+            //     style={styles.avatar}
+            // />
+            <FastImage
                 style={styles.avatar}
+                source={{
+                    uri: userAvatar,
+                    // headers: { Authorization: '9876543210' },
+                    priority: FastImage.priority.normal,
+                    cache: FastImage.cacheControl.immutable,
+                    //cache: FastImage.cacheControl.web,
+                    //cache: FastImage.cacheControl.cacheOnly,
+                }}
             />
+
         )
     }
 
@@ -259,6 +289,7 @@ class MenuBar extends React.Component {
     }
 
     render() {
+        // console.log('releaseStatus: ' + releaseStatus());
         if (!releaseStatus()) {
             newRouters = routesReView;
         } else {
@@ -270,6 +301,19 @@ class MenuBar extends React.Component {
                     <ImageBackground source={drawerCover} style={styles.drawerCover}>
                         {this.profileUser()}
                     </ImageBackground>
+                    {/* <FastImage
+                        style={styles.drawerCover}
+                        source={{
+                            uri: drawerCover,
+                            // headers: { Authorization: '9876543210' },
+                            priority: FastImage.priority.normal,
+                            cache: FastImage.cacheControl.immutable,
+                            //cache: FastImage.cacheControl.web,
+                            //cache: FastImage.cacheControl.cacheOnly,
+                        }}
+                    >
+                        {this.profileUser()}
+                    </FastImage> */}
                     <List
                         dataArray={newRouters}
                         renderRow={data => {

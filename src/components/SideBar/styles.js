@@ -71,18 +71,19 @@ export default {
 
     },
     avatar: {
-        width: 76,                          // Set width
-        height: 76,                         // Set height
+        width: 96,                          // Set width
+        height: 96,                         // Set height
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
+        borderRadius: 96 / 2
     },
     textTitle: {
         color: '#fff',                      // White text color
         backgroundColor: 'transparent',     // No background
         //fontFamily: 'Avenir',               // Change default font
         fontWeight: 'bold',                 // Bold font
-        fontSize: 16, 
+        fontSize: 16,
         textAlign: "center",
         marginTop: 6,
         justifyContent: 'center',
@@ -92,8 +93,8 @@ export default {
         // textShadowColor: '#222',
         // textShadowOffset: { width: 1, height: 1 },
         // textShadowRadius: 4,
-    } ,
-    buttonLogin_out:{
+    },
+    buttonLogin_out: {
         marginTop: 6,
         justifyContent: 'center',           // Center vertically
         alignItems: 'center',               // Center horizontally

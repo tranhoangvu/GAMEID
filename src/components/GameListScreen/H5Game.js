@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert, Linking} from 'react-native';
+import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert, Linking } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View, Badge } from "native-base";
 import { connect } from "react-redux";
 import AppLink from '../../lib/appLink.js';
 import { refeshData } from '../../index.js';
 import { Dimensions } from 'react-native';
 import { withNavigation } from 'react-navigation';
+import FastImage from 'react-native-fast-image';
 
 const starChecked = require("../../assets/images/start_checked.png");
 const starUnchecked = require("../../assets/images/start_unchecked.png");
@@ -22,7 +23,7 @@ class H5Game extends Component {
 
     _onRefresh() {
         this.setState({ refreshing: true });
-        setTimeout(() => { 
+        setTimeout(() => {
             refeshData("4");
             this.setState({ refreshing: false });
         }, 1500);
@@ -36,7 +37,7 @@ class H5Game extends Component {
             />
         )
     }
-    
+
     componentDidMount() {
     }
 
@@ -67,7 +68,7 @@ class H5Game extends Component {
         )
     }
 
-    openApp(game_h5_link){
+    openApp(game_h5_link) {
         if (game_h5_link !== '') {
             Linking.canOpenURL(game_h5_link).then(supported => {
                 if (supported) {
@@ -81,20 +82,20 @@ class H5Game extends Component {
         }
     }
 
-    starRating(star){
+    starRating(star) {
         const temp = [];
         for (let i = 0; i < star; i++) {
             temp.push(
                 <Image key={i}
-                    source={starChecked }
+                    source={starChecked}
                     style={styles.star}
                 />
             )
         }
-        if(star < 5 ){
+        if (star < 5) {
             for (let j = 0; j < 5 - star; j++) {
                 temp.push(
-                    <Image key={star+1-j}
+                    <Image key={star + 1 - j}
                         source={starUnchecked}
                         style={styles.star}
                     />
@@ -102,8 +103,8 @@ class H5Game extends Component {
             }
 
         }
-        return (<View style={{ flexDirection: 'row'}}>
-            { temp}
+        return (<View style={{ flexDirection: 'row' }}>
+            {temp}
         </View>
         )
     }
@@ -114,36 +115,47 @@ class H5Game extends Component {
                 <List
                     dataArray={this.props.appGameList.gameH5List}
                     renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0}}>
+                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
                             <TouchableOpacity
                                 style={styles.row}
                                 onPress={() => this.openApp(rowData.game_ios_link, rowData.game_ios_scheme, rowData.game_android_link)}
                                 activeOpacity={0.7}
                             >
-                            <Left>
-                                <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} />
-                            </Left>
-                            <Body>
-                                <Text style={{ fontSize: 16 }}>{rowData.game_name}</Text>
-                                <Text style={{ fontSize: 14 }}>Lượt chơi: {rowData.game_total_download}</Text>
+                                <Left>
+                                    {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
+                                    <FastImage
+                                        style={{ width: 64, height: 64 }}
+                                        source={{
+                                            uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link,
+                                            // headers: {Authorization: '9876543210' },
+                                            priority: FastImage.priority.high,
+                                            cache: FastImage.cacheControl.immutable,
+                                            //cache: FastImage.cacheControl.web,
+                                            //cache: FastImage.cacheControl.cacheOnly,
+                                        }}
+                                    />
+                                </Left>
+                                <Body>
+                                    <Text style={{ fontSize: 16 }}>{rowData.game_name}</Text>
+                                    <Text style={{ fontSize: 14 }}>Lượt chơi: {rowData.game_total_download}</Text>
                                     {this.starRating(rowData.game_rating)}
-                            </Body>
-                            <Right>
+                                </Body>
+                                <Right>
                                     <Button transparent onPress={() => this.openApp(rowData.game_h5_link)}>
-                                    <Text style={{ fontSize: 14 }}>Chơi ngay</Text>
-                                </Button>
-                            </Right>
+                                        <Text style={{ fontSize: 14 }}>Chơi ngay</Text>
+                                    </Button>
+                                </Right>
                             </TouchableOpacity>
                         </ListItem>
-                        }
+                    }
                 />
             </View>
         )
     }
 
-    gameListView(){
+    gameListView() {
         const gameData = this.props.appGameList.gameH5List;
-        if (gameData !== null){
+        if (gameData !== null) {
             return this.gameList();
         }
         return this.gameNull()
@@ -167,13 +179,13 @@ class H5Game extends Component {
     render() {
         const isGameListLoading = this.props.appGameList.isGameH5List;
         return (
-                <Content refreshControl={this._refreshControl()} >
-                    {isGameListLoading ? (
-                        this.gameListView()
-                    ) : (
+            <Content refreshControl={this._refreshControl()} >
+                {isGameListLoading ? (
+                    this.gameListView()
+                ) : (
                         this.loading()
                     )}
-                </Content>
+            </Content>
         );
     }
 }

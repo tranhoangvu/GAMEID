@@ -21,6 +21,7 @@ import {
     userCountMess
 } from '../reducers/server/serverActions';
 import { refeshData, releaseStatus } from '../index.js';
+import FastImage from 'react-native-fast-image';
 
 var ls = require('./localStorage');
 
@@ -54,6 +55,7 @@ export async function firebaseFetchData(store) {
 export async function getAdsListData(store) {
     var key = store.getState().firebase.firebaseConfig.vtcapp_secure_key;
     var apiURL = store.getState().firebase.firebaseConfig.vtcapp_api_url;
+    var imageURL = store.getState().firebase.firebaseConfig.vtcapp_image_url;
     var device_id = store.getState().device.uniqueId;
     var secure_key = md5(device_id + key);
 
@@ -65,18 +67,23 @@ export async function getAdsListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
         .then((responseJson) => {
             store.dispatch(getAdsList(responseJson));
-            // ls.clear(); //remove ads
+            ls.clear(); //remove ads
             ls.get(responseJson[0].app_ads_id).then((data) => {
                 // console.log(data);
                 if (data === null) {
                     ls.set(responseJson[0].app_ads_id, true);
+                    FastImage.preload([
+                        {
+                            uri: imageURL + responseJson[0].app_ads_image_link
+                        }
+                    ])
                 }
             });
         })
@@ -117,6 +124,7 @@ export async function getNewsListData(store) {
 export async function getGameListData(store) {
     var key = store.getState().firebase.firebaseConfig.vtcapp_secure_key;
     var apiURL = store.getState().firebase.firebaseConfig.vtcapp_api_url;
+    var imageURL = store.getState().firebase.firebaseConfig.vtcapp_image_url;
     var device_id = store.getState().device.uniqueId;
     var platform = store.getState().device.platform;
     var secure_key = md5(device_id + key);
@@ -130,14 +138,25 @@ export async function getGameListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
         .then((responseJson) => {
+            responseJson.map((item) => {
+                // console.log(item.game_icon_link);
+                FastImage.preload([
+                    {
+                        uri: imageURL + item.game_icon_link
+                    },
+                    {
+                        uri: imageURL + item.game_cover_link
+                    }
+                ])
+            })
             store.dispatch(getGameList(responseJson));
-            if (!releaseStatus()) store.dispatch(getGameList(null));
+            // if (!releaseStatus()) store.dispatch(getGameList(null));
         })
         .catch((err) => {
             console.log(err);
@@ -149,6 +168,7 @@ export async function getGameListData(store) {
 export async function getGameH5ListData(store) {
     var key = store.getState().firebase.firebaseConfig.vtcapp_secure_key;
     var apiURL = store.getState().firebase.firebaseConfig.vtcapp_api_url;
+    var imageURL = store.getState().firebase.firebaseConfig.vtcapp_image_url;
     var device_id = store.getState().device.uniqueId;
     var secure_key = md5(device_id + key);
 
@@ -160,14 +180,22 @@ export async function getGameH5ListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
         .then((responseJson) => {
+            responseJson.map((item) => {
+                // console.log(item.game_icon_link);
+                FastImage.preload([
+                    {
+                        uri: imageURL + item.game_icon_link
+                    }
+                ])
+            })
             store.dispatch(getGameH5List(responseJson));
-            if (!releaseStatus()) store.dispatch(getGameH5List(null));
+            // if (!releaseStatus()) store.dispatch(getGameH5List(null));
         })
         .catch((err) => {
             console.log(err);
@@ -191,14 +219,15 @@ export async function getGiftListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
         .then((responseJson) => {
+            // console.log(responseJson);
             store.dispatch(getGiftList(responseJson));
-            if (!releaseStatus()) store.dispatch(getGiftList(null));
+            // if (!releaseStatus()) store.dispatch(getGiftList(null));
         })
         .catch((err) => {
             console.log('getGiftListData: ' + err);
@@ -222,14 +251,14 @@ export async function getNotificationListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
         .then((responseJson) => {
             store.dispatch(getNotificationList(responseJson));
-            if (!releaseStatus()) store.dispatch(getNotificationList(null));
+            // if (!releaseStatus()) store.dispatch(getNotificationList(null));
         })
         .catch((err) => {
             console.log(err);
@@ -253,7 +282,7 @@ export async function getUserGiftListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -283,7 +312,7 @@ export async function getUserTransactionListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -314,7 +343,7 @@ export async function getUserCardListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -345,7 +374,7 @@ export async function userCountMessData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -356,7 +385,7 @@ export async function userCountMessData(store) {
             } else {
                 store.dispatch(userCountMess('99+'));
             }
-            if (!releaseStatus()) store.dispatch(userCountMess(null));
+            // if (!releaseStatus()) store.dispatch(userCountMess(null));
 
         })
         .catch((err) => {
@@ -401,7 +430,7 @@ export async function setUserProfileData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -432,7 +461,7 @@ export function updateEmailVerifiedData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -464,7 +493,7 @@ export function updateTransactionData(store, transactionID) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
@@ -495,7 +524,7 @@ export function updatePhoneNumberData(store, phoneNumber) {
             method: 'POST',
             header: {
                 'Accept': 'application/json',
-                'Content-type': 'application/x-www-form-urlencoded'
+                'Content-type': 'application/json'
             },
             body: formData //JSON.stringify(body)
         })
@@ -531,7 +560,7 @@ export function updateFirebaseTokenData(store) {
             method: 'POST',
             header: {
                 'Accept': 'application/json',
-                'Content-type': 'application/x-www-form-urlencoded'
+                'Content-type': 'application/json'
             },
             body: formData //JSON.stringify(body)
         })
@@ -561,14 +590,14 @@ export async function getGameGiftListData(store) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData //JSON.stringify(body)
     })
         .then((response) => response.json())
         .then((responseJson) => {
             store.dispatch(getGameGiftList(responseJson));
-            if (!releaseStatus()) store.dispatch(getGameGiftList(null));
+            // if (!releaseStatus()) store.dispatch(getGameGiftList(null));
         })
         .catch((err) => {
             console.log(err);
@@ -590,7 +619,7 @@ export function getGiftCode(user_uid, giftcode_event_id, key, device_id, apiURL)
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData
     })
@@ -618,7 +647,7 @@ export function readNotifi(user_uid, key, device_id, apiURL) {
         method: 'POST',
         header: {
             'Accept': 'application/json',
-            'Content-type': 'application/x-www-form-urlencoded'
+            'Content-type': 'application/json'
         },
         body: formData
     })

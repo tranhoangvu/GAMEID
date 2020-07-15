@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert} from 'react-native';
+import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View, Badge } from "native-base";
 import { connect } from "react-redux";
 import AppLink from '../../lib/appLink.js';
 import { refeshData } from '../../index.js';
 import { Dimensions } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 const starChecked = require("../../assets/images/start_checked.png");
 const starUnchecked = require("../../assets/images/start_unchecked.png");
@@ -21,7 +22,7 @@ class MobileGame extends Component {
 
     _onRefresh() {
         this.setState({ refreshing: true });
-        setTimeout(() => { 
+        setTimeout(() => {
             refeshData("4");
             this.setState({ refreshing: false });
         }, 1500);
@@ -35,7 +36,7 @@ class MobileGame extends Component {
             />
         )
     }
-    
+
     componentDidMount() {
     }
 
@@ -66,29 +67,29 @@ class MobileGame extends Component {
         )
     }
 
-    openApp(game_ios_link, game_ios_scheme, game_android_link){
+    openApp(game_ios_link, game_ios_scheme, game_android_link) {
         AppLink.openApp(game_ios_link, game_ios_scheme, game_android_link).then(() => {
             console.log('Open URL');
         })
-        .catch((err) => {
-            console.log('Error: ' + err);
-        });
+            .catch((err) => {
+                console.log('Error: ' + err);
+            });
     }
 
-    starRating(star){
+    starRating(star) {
         const temp = [];
         for (let i = 0; i < star; i++) {
             temp.push(
                 <Image key={i}
-                    source={starChecked }
+                    source={starChecked}
                     style={styles.star}
                 />
             )
         }
-        if(star < 5 ){
+        if (star < 5) {
             for (let j = 0; j < 5 - star; j++) {
                 temp.push(
-                    <Image key={star+1-j}
+                    <Image key={star + 1 - j}
                         source={starUnchecked}
                         style={styles.star}
                     />
@@ -96,8 +97,8 @@ class MobileGame extends Component {
             }
 
         }
-        return (<View style={{ flexDirection: 'row'}}>
-            { temp}
+        return (<View style={{ flexDirection: 'row' }}>
+            {temp}
         </View>
         )
     }
@@ -108,36 +109,47 @@ class MobileGame extends Component {
                 <List
                     dataArray={this.props.appGameList.gameList}
                     renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0}}>
+                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
                             <TouchableOpacity
                                 style={styles.row}
                                 onPress={() => this.openApp(rowData.game_ios_link, rowData.game_ios_scheme, rowData.game_android_link)}
                                 activeOpacity={0.7}
                             >
-                            <Left>
-                                <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} />
-                            </Left>
-                            <Body>
-                                <Text style={{ fontSize: 16 }}>{rowData.game_name}</Text>
-                                <Text style={{ fontSize: 14 }}>Lượt tải: {rowData.game_total_download}</Text>
+                                <Left>
+                                    {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
+                                    <FastImage
+                                        style={{ width: 64, height: 64 }}
+                                        source={{
+                                            uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link,
+                                            // headers: {Authorization: '9876543210' },
+                                            priority: FastImage.priority.high,
+                                            cache: FastImage.cacheControl.immutable,
+                                            //cache: FastImage.cacheControl.web,
+                                            //cache: FastImage.cacheControl.cacheOnly,
+                                        }}
+                                    />
+                                </Left>
+                                <Body>
+                                    <Text style={{ fontSize: 16 }}>{rowData.game_name}</Text>
+                                    <Text style={{ fontSize: 14 }}>Lượt tải: {rowData.game_total_download}</Text>
                                     {this.starRating(rowData.game_rating)}
-                            </Body>
-                            <Right>
+                                </Body>
+                                <Right>
                                     <Button transparent onPress={() => this.openApp(rowData.game_ios_link, rowData.game_ios_scheme, rowData.game_android_link)}>
-                                    <Text style={{ fontSize: 14 }}>Tải game</Text>
-                                </Button>
-                            </Right>
+                                        <Text style={{ fontSize: 14 }}>Tải game</Text>
+                                    </Button>
+                                </Right>
                             </TouchableOpacity>
                         </ListItem>
-                        }
+                    }
                 />
             </View>
         )
     }
 
-    gameListView(){
+    gameListView() {
         const gameData = this.props.appGameList.gameList;
-        if (gameData !== null){
+        if (gameData !== null) {
             return this.gameList();
         }
         return this.gameNull()
@@ -161,13 +173,13 @@ class MobileGame extends Component {
     render() {
         const isGameListLoading = this.props.appGameList.isGameList;
         return (
-                <Content refreshControl={this._refreshControl()} >
-                    {isGameListLoading ? (
-                        this.gameListView()
-                    ) : (
+            <Content refreshControl={this._refreshControl()} >
+                {isGameListLoading ? (
+                    this.gameListView()
+                ) : (
                         this.loading()
                     )}
-                </Content>
+            </Content>
         );
     }
 }

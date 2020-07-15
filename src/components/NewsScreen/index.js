@@ -5,6 +5,7 @@ import WebView from 'react-native-webview';
 import { connect } from "react-redux";
 import Timestamp from '../../lib/timestamp';
 import { releaseStatus } from '../../index';
+import FastImage from 'react-native-fast-image';
 
 var ls = require('../../lib/localStorage');
 
@@ -219,12 +220,26 @@ export class NewsScreen extends React.Component {
                             </View>
                             <View style={{ height: '100%', width: '100%', }}>
                                 <TouchableOpacity onPress={() => { this.openAdsLink(this.state.ads_link) }}>
-                                    <Image source={{ uri: this.state.ads_image_link }} style={{
+                                    {/* <Image source={{ uri: this.state.ads_image_link }} style={{
                                         height: '100%',
                                         width: '100%',
                                         resizeMode: 'stretch',
                                         borderRadius: 10,
-                                    }} />
+                                    }} /> */}
+                                    <FastImage
+                                        style={{
+                                            height: '100%', width: '100%', borderRadius: 10
+                                        }}
+                                        source={{
+                                            uri: this.state.ads_image_link,
+                                            // headers: { Authorization: '9876543210' },
+                                            priority: FastImage.priority.high,
+                                            cache: FastImage.cacheControl.immutable,
+                                            //cache: FastImage.cacheControl.web,
+                                            //cache: FastImage.cacheControl.cacheOnly,
+                                        }}
+                                        resizeMode={FastImage.resizeMode.stretch}
+                                    />
                                 </TouchableOpacity>
                             </View>
                             {/* <View style={styles.ModalButton}>

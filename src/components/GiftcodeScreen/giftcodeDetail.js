@@ -22,6 +22,7 @@ import { ShareDialog } from 'react-native-fbsdk';
 import { getGiftCode } from '../../lib/fetchData.js';
 import { refeshData } from '../../index.js';
 import { Dimensions } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 const screen = Dimensions.get('window');
 // const slideAnimation = new SlideAnimation({
@@ -115,11 +116,22 @@ class GiftcodeDetailScreen extends Component {
                     onRequestClose={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }} >
                     <View style={[styles.containerModal, modalBackgroundStyle]}>
                         <View style={styles.ModalInsideView}>
-                            <Image source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + this.state.giftcodeData.game_cover_link }} style={{
+                            {/* <Image source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + this.state.giftcodeData.game_cover_link }} style={{
                                 height: 125,
                                 width: '100%',
                                 borderRadius: 10,
-                            }} />
+                            }} /> */}
+                            <FastImage
+                                style={{ height: 125, width: '100%', borderRadius: 10 }}
+                                source={{
+                                    uri: this.props.appFire.firebaseConfig.vtcapp_image_url + this.state.giftcodeData.game_cover_link,
+                                    // headers: { Authorization: '9876543210' },
+                                    priority: FastImage.priority.high,
+                                    cache: FastImage.cacheControl.immutable,
+                                    //cache: FastImage.cacheControl.web,
+                                    //cache: FastImage.cacheControl.cacheOnly,
+                                }}
+                            />
                             <Text style={styles.TextStyle}>{this.state.giftcodeData.giftcode_des}</Text>
                             <View style={styles.ModalButton}>
                                 <Button transparent onPress={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }}>
@@ -221,7 +233,18 @@ class GiftcodeDetailScreen extends Component {
                                 activeOpacity={0.7}
                             >
                                 <Left>
-                                    <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} />
+                                    {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
+                                    <FastImage
+                                        style={{ width: 64, height: 64 }}
+                                        source={{
+                                            uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link,
+                                            // headers: { Authorization: '9876543210' },
+                                            priority: FastImage.priority.normal,
+                                            cache: FastImage.cacheControl.immutable,
+                                            //cache: FastImage.cacheControl.web,
+                                            //cache: FastImage.cacheControl.cacheOnly,
+                                        }}
+                                    />
                                 </Left>
                                 <Body>
                                     <Text style={{ fontSize: 16 }}>{rowData.giftcode_event_name}</Text>

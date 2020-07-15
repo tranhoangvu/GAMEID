@@ -4,6 +4,7 @@ import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Tex
 import { connect } from "react-redux";
 import { refeshData } from '../../index.js';
 import { Dimensions } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 const screen = Dimensions.get('window');
 
@@ -83,8 +84,19 @@ class GiftcodeScreen extends Component {
                                 onPress={() => this.giftcodeDetail(rowData.game_id, rowData.game_name)}
                                 activeOpacity={0.7}
                             >
-                                <ImageBackground source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_cover_link }} style={styles.imageBackground} imageStyle={{ borderRadius: 5 }}>
-                                </ImageBackground>
+                                {/* <ImageBackground source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_cover_link }} style={styles.imageBackground} imageStyle={{ borderRadius: 5 }}>
+                                </ImageBackground> */}
+                                <FastImage
+                                    style={styles.imageBackground}
+                                    source={{
+                                        uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_cover_link,
+                                        // headers: { Authorization: '9876543210' },
+                                        priority: FastImage.priority.high,
+                                        cache: FastImage.cacheControl.immutable,
+                                        //cache: FastImage.cacheControl.web,
+                                        //cache: FastImage.cacheControl.cacheOnly,
+                                    }}
+                                />
                             </TouchableOpacity>
                         </ListItem>
                     }
@@ -168,6 +180,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',           // Center vertically
         alignItems: 'stretch',               // Center horizontally
         // alignItems: 'stretch'
+        borderRadius: 5
     },
     text: {
         color: '#fff',                      // White text color

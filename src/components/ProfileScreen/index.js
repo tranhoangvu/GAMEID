@@ -10,6 +10,7 @@ import Timestamp from '../../lib/timestamp';
 // import { GoogleSignin } from 'react-native-google-signin';
 import { GoogleSignin } from '@react-native-community/google-signin';
 import { LoginManager } from 'react-native-fbsdk';
+import FastImage from 'react-native-fast-image';
 
 const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
@@ -225,9 +226,20 @@ class ProfileScreen extends React.Component {
             }
         }
         return (
-            <Thumbnail
-                source={{ uri: userAvatar }}
+            // <Thumbnail
+            //     source={{ uri: userAvatar }}
+            //     style={styles.avatar}
+            // />
+            <FastImage
                 style={styles.avatar}
+                source={{
+                    uri: userAvatar,
+                    // headers: { Authorization: '9876543210' },
+                    priority: FastImage.priority.normal,
+                    cache: FastImage.cacheControl.immutable,
+                    //cache: FastImage.cacheControl.web,
+                    //cache: FastImage.cacheControl.cacheOnly,
+                }}
             />
         )
     }
@@ -547,11 +559,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',               // Center horizontally
     },
     avatar: {
-        width: 76,                          // Set width
-        height: 76,                         // Set height
+        width: 96,                          // Set width
+        height: 96,                         // Set height
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
+        borderRadius: 96 / 2
     },
     textRight: {
         fontSize: 15,

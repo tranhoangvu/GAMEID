@@ -107,8 +107,11 @@ export function updatePhoneNumber() {
 export function releaseStatus() {
     const clientVersion = store.getState().global.clientVersion;
     const iOS_release = store.getState().firebase.firebaseConfig.vtcapp_ios_release;
-    // const iOS_release = false;
     const Android_release = store.getState().firebase.firebaseConfig.vtcapp_android_release;
+
+    // console.log('clientVersion: ' + clientVersion);
+    // console.log('vtcapp_android_version: ' + store.getState().firebase.firebaseConfig.vtcapp_android_version);
+    // console.log('Android_release: ' + Android_release);
 
     if (Platform.OS === 'ios') {
         if (clientVersion === store.getState().firebase.firebaseConfig.vtcapp_ios_version) {
@@ -193,8 +196,14 @@ export default class App extends Component {
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
         };
+    }
+
+    componentDidMount() {
+        if (__DEV__) {
+            firebase.config().enableDeveloperMode();
+        }
         //Remove this method to stop OneSignal Debugging 
-        OneSignal.setLogLevel(6, 0);
+        // OneSignal.setLogLevel(6, 0);
 
         // Replace 'YOUR_ONESIGNAL_APP_ID' with your OneSignal App ID.
         OneSignal.init("c580d75c-b7c3-4d45-92bb-30010b16f3bd", { kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: false, kOSSettingsKeyInFocusDisplayOption: 2 });
@@ -206,12 +215,7 @@ export default class App extends Component {
         OneSignal.addEventListener('received', this.onReceived);
         OneSignal.addEventListener('opened', this.onOpened);
         OneSignal.addEventListener('ids', this.onIds);
-    }
 
-    componentDidMount() {
-        if (__DEV__) {
-            firebase.config().enableDeveloperMode();
-        }
         store.dispatch(setPlatform(Platform.OS));
         store.dispatch(setUniqueId(uniqueId));
         store.dispatch(setStore(store));
@@ -235,13 +239,13 @@ export default class App extends Component {
         }, 500);
     }
 
-    UNSAFE_componentWillMount() {
-        OneSignal.removeEventListener('received', this.onReceived);
-        OneSignal.removeEventListener('opened', this.onOpened);
-        OneSignal.removeEventListener('ids', this.onIds);
-    }
+    // UNSAFE_componentWillMount() {
+    //     OneSignal.removeEventListener('received', this.onReceived);
+    //     OneSignal.removeEventListener('opened', this.onOpened);
+    //     OneSignal.removeEventListener('ids', this.onIds);
+    // }
 
-    componentWillUnmount() {
+    UNSAFE_componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', this.backPressed);
         // NetInfo.isConnected.removeEventListener('connectionChange', this._handelConnectivityChange);
         NetInfo.removeEventListener(state => { this.handelConnectivityChange });
