@@ -72,3 +72,4 @@ android/replay_pid7684.log
 android/java_pid3616.hprof
 *.hprof
 android/hs_err_pid7684.log
+*.log
