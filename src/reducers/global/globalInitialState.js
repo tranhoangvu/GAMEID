@@ -5,6 +5,6 @@ var InitialState = Record({
     showState: false,
     currentState: null,
     store: null,
-    clientVersion: '3.1.0'
+    clientVersion: '3.1.1'
 })
 export default InitialState

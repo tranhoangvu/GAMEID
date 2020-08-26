@@ -20,10 +20,6 @@
 // remove(keyName) : Remove key(s) from local storage.keyname may be a string or an array.
 // clear() : Remove all keys from local storage.
 
-import React, { Component } from 'react';
-// import {
-//     AsyncStorage
-// } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 var localStorage = {

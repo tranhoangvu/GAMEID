@@ -15,6 +15,7 @@
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/netinfo": "^5.9.4",
     "@react-native-community/viewpager": "^4.0.1",
+    "axios": "^0.19.2",
     "immutable": "^4.0.0-rc.12",
     "key-mirror": "^1.0.1",
     "md5": "^2.2.1",

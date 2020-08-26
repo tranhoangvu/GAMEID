@@ -86,6 +86,7 @@ export class NewsScreen extends React.Component {
         }
     }
     componentDidMount() {
+        // console.log("componentDidMount");
         this.checkAds();
         this.setState({
             url: this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url
@@ -174,16 +175,29 @@ export class NewsScreen extends React.Component {
     }
 
     checkAds() {
+        // console.log("releaseStatus: " + releaseStatus());
         if (releaseStatus()) {
-            // console.log(this.props.myServerData.adsList)
+            // console.log("isAdsList: " + this.props.myServerData.isAdsList);
             if (this.props.myServerData.isAdsList) {
+                // console.log("adsList: " + this.props.myServerData.adsList);
                 if (this.props.myServerData.adsList != null) {
                     ls.get(this.props.myServerData.adsList[0].app_ads_id).then((data) => {
-                        this.setState({
-                            ads_image_link: this.props.myFirebaseConfig.firebaseConfig.vtcapp_image_url + this.props.myServerData.adsList[0].app_ads_image_link,
-                            ads_link: this.props.myServerData.adsList[0].app_ads_link
-                        });
-                        this.ShowModalFunction(data)
+                        // console.log("ads_news: " + data);
+                        if (data === true || data === null || this.props.myServerData.adsList[0].app_ads_display == 1) {
+                            // console.log(this.props.myFirebaseConfig.firebaseConfig.vtcapp_image_url + this.props.myServerData.adsList[0].app_ads_image_link);
+                            FastImage.preload([
+                                {
+                                    uri: this.props.myFirebaseConfig.firebaseConfig.vtcapp_image_url + this.props.myServerData.adsList[0].app_ads_image_link
+                                }
+                            ])
+                            this.setState({
+                                ads_image_link: this.props.myFirebaseConfig.firebaseConfig.vtcapp_image_url + this.props.myServerData.adsList[0].app_ads_image_link,
+                                ads_link: this.props.myServerData.adsList[0].app_ads_link
+                            });
+                            setTimeout(() => {
+                                this.ShowModalFunction(true);
+                            }, 3500);
+                        }
                     });
                 }
             }
@@ -191,18 +205,18 @@ export class NewsScreen extends React.Component {
     }
 
     closeAds() {
-        ls.set(this.props.myServerData.adsList[0].app_ads_id, false)
-            .then(() => {
-                ls.get(this.props.myServerData.adsList[0].app_ads_id).then((data) => {
-                    this.ShowModalFunction(data)
-                });
-            })
+        if (this.props.myServerData.adsList[0].app_ads_display == 1) {
+            ls.set(this.props.myServerData.adsList[0].app_ads_id, true);
+        } else {
+            ls.set(this.props.myServerData.adsList[0].app_ads_id, false);
+        }
+        this.ShowModalFunction(false)
     }
 
     showAds() {
-        var modalBackgroundStyle = {
-            backgroundColor: this.state.ModalVisibleStatus ? 'rgba(0, 0, 0, 0.5)' : '#f5fcff',
-        };
+        // var modalBackgroundStyle = {
+        //     backgroundColor: this.state.ModalVisibleStatus ? 'rgba(0, 0, 0, 0.5)' : '#f5fcff',
+        // };
         return (
             <View style={styles.MainContainer}>
                 <Modal

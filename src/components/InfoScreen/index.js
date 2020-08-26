@@ -14,13 +14,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
         width: 350,
-        top: -65
+        top: -25
     },
     textStyle: {
         color: '#000',
         fontSize: 14,
         textAlign: 'center',
-        marginBottom: 5,
     }
 })
 //const uri = 'https://thanhtoanonline.vn/?portal=topup&page=iframe&cmd=2&affiliate_code=706e90541a11916fea81898a3ad55496';
@@ -71,21 +70,15 @@ class InfoScreen extends Component {
                 <Content contentContainerStyle={{ flex: 1, backgroundColor: 'white' }} scrollEnabled={false}>
                     <View style={styles.MainContainer}>
                         <Image source={logoGameID} style={{
+                            width: 250,
                             height: 125,
-                            width: 204,
-                            marginBottom: 5,
-                            //resizeMode: 'contain'
-                            // alignSelf: "stretch",
-                            // justifyContent: "center",
-                            // alignItems: "center"
-                        }}/>
+                            flex: 1,
+                        }} resizeMode='contain' />
                         {/* <Text style={styles.textStyle}>Phiên bản {(Platform.OS) === 'ios' ? vtcapp_ios_version : vtcapp_android_version}</Text> */}
-                        <Text style={styles.textStyle}>Phiên bản client {clientVersion}</Text>
                         <Text style={styles.textStyle}>Ứng dụng GAMEID.VN do GAMEID TEAM phát triển hỗ trợ game thủ dễ dàng nhận được các thông tin mới nhất, code HOT nhất từ game mình yêu thích!</Text>
-                        {/* <Text style={styles.textStyle}>Fanpage LAZAGAME</Text>
-                        <Text style={styles.textStyle}>Group Hội Chợ Game</Text> */}
                         <Text style={styles.textStyle}>Một sản phẩm của GAMEID TEAM</Text>
                         <Text style={styles.textStyle}>{'\u00A9'}GAMEID.VN 2020</Text>
+                        <Text style={styles.textStyle}>Phiên bản thử nghiệm {clientVersion}</Text>
                     </View>
                 </Content>
             </Container>

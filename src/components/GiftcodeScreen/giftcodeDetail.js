@@ -152,7 +152,7 @@ class GiftcodeDetailScreen extends Component {
         this.ShowModalFunction(!this.state.ModalVisibleStatus)
         switch (this.state.giftcodeData.event_type_id) {
             case "1":
-                console.log("case 1")
+                console.log("case 1");
                 getGiftCode(this.state.uid, this.state.giftcodeData.giftcode_event_id, this.state.key, this.state.uniqueId, this.props.appFire.firebaseConfig.vtcapp_api_url);
                 break;
 

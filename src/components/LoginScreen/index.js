@@ -315,9 +315,10 @@ class LoginScreen extends Component {
         return (
             <View style={styles.container}>
                 <Image source={logoGameID} style={{
+                    width: 250,
                     height: 125,
-                    width: 204,
-                }} />
+                    flex: 1,
+                }} resizeMode='contain' />
                 <Text style={styles.textTitle}>Vui lòng chọn đăng nhập tài khoản!</Text>
                 < TouchableOpacity onPress={
                     () => this.facebookLogin()
@@ -335,9 +336,10 @@ class LoginScreen extends Component {
         return (
             <View style={styles.container}>
                 <Image source={logoGameID} style={{
+                    width: 250,
                     height: 125,
-                    width: 204,
-                }} />
+                    flex: 1,
+                }} resizeMode='contain' />
                 <Text style={styles.textTitle}>Vui lòng chọn thoát tài khoản!</Text>
                 <TouchableOpacity onPress={() => this.logout()}>
                     <Image source={btLogout} style={styles.imageLogin_out} />

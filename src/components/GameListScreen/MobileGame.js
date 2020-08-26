@@ -150,6 +150,17 @@ class MobileGame extends Component {
     gameListView() {
         const gameData = this.props.appGameList.gameList;
         if (gameData !== null) {
+            gameData.map((item) => {
+                FastImage.preload([
+                    {
+                        uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_icon_link
+                    },
+                    {
+                        uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_cover_link
+                    }
+                ])
+            })
+
             return this.gameList();
         }
         return this.gameNull()

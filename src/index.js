@@ -6,14 +6,14 @@
 
 import React, { Component } from 'react';
 import firebase from 'react-native-firebase';
-import { ActivityIndicator, AppRegistry, StyleSheet, Platform, Alert, BackHandler, Image, ImageBackground, Dimensions } from 'react-native'
+import { ActivityIndicator, StyleSheet, Platform, Alert, BackHandler, Image, ImageBackground, Dimensions } from 'react-native'
 import { Root } from "native-base";
-import { View, Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text } from 'native-base';
+import { View, Text } from 'native-base';
 import AppNavigator from "../src/config/routes.js";
 import { Provider } from 'react-redux';
 
 import { setPlatform, setUniqueId, setOneSignal, setNetwork } from './reducers/device/deviceActions';
-import { getUserGiftList, getNotificationList, userCountMess } from './reducers/server/serverActions';
+
 import { logout } from './reducers/auth/authActions';
 import { setStore } from './reducers/global/globalActions';
 import { fetchData } from './reducers/firebase/firebaseActions';
@@ -26,27 +26,42 @@ import DeviceInitialState from './reducers/device/deviceInitialState';
 import GlobalInitialState from './reducers/global/globalInitialState';
 import DeviceInfo from 'react-native-device-info';
 import NetInfo from '@react-native-community/netinfo';
-import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
 import {
-    firebaseFetchData,
-    getNewsListData,
-    getAdsListData,
-    getGameListData,
-    getGameH5ListData,
-    getGameGiftListData,
-    getGiftListData,
-    setUserProfileData,
+    fetchFirebaseData,
+    fetchGameData,
+    setUserData,
+    fetchUserData,
+    // getNewsListData,
+    // getAdsListData,
+    // getGameListData,
+    // getGameH5ListData,
+    // getGameGiftListData,
+    // getGiftListData,
+    // setUserProfileData,
+    // userCountMessData,
+    // getNotificationListData,
+    // getUserGiftListData,
+    // getUserCardListData,
+    // getUserTransactionListData,
     updateFirebaseTokenData,
-    userCountMessData,
-    getNotificationListData,
-    getUserGiftListData,
-    getUserCardListData,
-    getUserTransactionListData,
     updatePhoneNumberData,
     updateEmailVerifiedData,
     updateTransactionData
 } from './lib/fetchData';
+import {
+    getGameList,
+    getGameH5List,
+    getNewsList,
+    getAdsList,
+    getGameGiftList,
+    getGiftList,
+    getUserGiftList,
+    getUserCardList,
+    getUserTransactionList,
+    getNotificationList,
+    userCountMess
+} from './reducers/server/serverActions';
 import * as authActions from './reducers/auth/authActions';
 
 var ls = require('./lib/localStorage');
@@ -109,10 +124,6 @@ export function releaseStatus() {
     const iOS_release = store.getState().firebase.firebaseConfig.vtcapp_ios_release;
     const Android_release = store.getState().firebase.firebaseConfig.vtcapp_android_release;
 
-    // console.log('clientVersion: ' + clientVersion);
-    // console.log('vtcapp_android_version: ' + store.getState().firebase.firebaseConfig.vtcapp_android_version);
-    // console.log('Android_release: ' + Android_release);
-
     if (Platform.OS === 'ios') {
         if (clientVersion === store.getState().firebase.firebaseConfig.vtcapp_ios_version) {
             return iOS_release;
@@ -131,22 +142,30 @@ export function releaseStatus() {
 export function refeshData(flag) {
     switch (flag) {
         case "1": //login
-            setUserProfileData(store).then(() => {
-                getNotificationListData(store).then(() => {
-                    userCountMessData(store);
-                });
-            });
-            getUserGiftListData(store);
-            getUserCardListData(store);
-            getUserTransactionListData(store);
+            setUserData(store).then((data) => {
+                if (data) {
+                    // updateUserToken();
+                    updateEmailVerified();
+                }
+            })
+            fetchUserData(store);
+            // setUserProfileData(store).then(() => {
+            //     getNotificationListData(store).then(() => {
+            //         userCountMessData(store);
+            //     });
+            // });
+            // getUserGiftListData(store);
+            // getUserCardListData(store);
+            // getUserTransactionListData(store);
             // updateUserToken();
-            updateEmailVerified();
+            // updateEmailVerified();
             break;
 
         case "2": //getGiftcode
-            getUserGiftListData(store);
-            getUserCardListData(store);
-            getUserTransactionListData(store);
+            fetchUserData(store);
+            // getUserGiftListData(store);
+            // getUserCardListData(store);
+            // getUserTransactionListData(store);
             break;
 
         case "3": //logout
@@ -159,15 +178,17 @@ export function refeshData(flag) {
 
         case "4": //refeshData
             // getNewsListData(store);
-            getGameListData(store);
-            getGameH5ListData(store);
-            getGameGiftListData(store);
-            getGiftListData(store);
+            // getGameListData(store);
+            // getGameH5ListData(store);
+            // getGameGiftListData(store);
+            // getGiftListData(store);
+            fetchGameData(store);
             if (store.getState().auth.isAuth) {
-                getNotificationListData(store);
-                getUserGiftListData(store);
-                getUserCardListData(store);
-                getUserTransactionListData(store);
+                fetchUserData(store);
+                // getNotificationListData(store);
+                // getUserGiftListData(store);
+                // getUserCardListData(store);
+                // getUserTransactionListData(store);
             }
             break;
 
@@ -180,6 +201,11 @@ export function refeshData(flag) {
             break;
     }
 }
+
+// async function isFetchData() {
+//     await fetchGameData(store);
+//     return true;
+// }
 
 export default class App extends Component {
 
@@ -221,38 +247,24 @@ export default class App extends Component {
         store.dispatch(setStore(store));
         this.unsubscribe = firebase.auth().onUserChanged(this.onUserChanged);
         BackHandler.addEventListener('hardwareBackPress', this.backPressed);
-        // NetInfo.isConnected.addEventListener('connectionChange', this._handelConnectivityChange);
-        // NetInfo.isConnected.fetch().then(isConnected => {
-        //     if (isConnected) this.setState({ isConnected });
-        // });
+
         NetInfo.addEventListener(
             state => { this.handelConnectivityChange }
         );
         NetInfo.fetch().then(state => {
-            // console.log("Connection type", state.type);
-            // console.log("Is connected?", state.isConnected);
             if (state.isConnected) this.setState({ isConnected: 'true' });
         });
         setTimeout(() => {
             this.appAsync();
-            // console.log('componentDidMount');
-        }, 500);
+        }, 1000);
     }
-
-    // UNSAFE_componentWillMount() {
-    //     OneSignal.removeEventListener('received', this.onReceived);
-    //     OneSignal.removeEventListener('opened', this.onOpened);
-    //     OneSignal.removeEventListener('ids', this.onIds);
-    // }
 
     UNSAFE_componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', this.backPressed);
-        // NetInfo.isConnected.removeEventListener('connectionChange', this._handelConnectivityChange);
         NetInfo.removeEventListener(state => { this.handelConnectivityChange });
         if (this.unsubscribe) this.unsubscribe();
         OneSignal.removeEventListener('received', this.onReceived);
         OneSignal.removeEventListener('opened', this.onOpened);
-        // OneSignal.removeEventListener('registered', this.onRegistered);
         OneSignal.removeEventListener('ids', this.onIds);
     }
 
@@ -268,19 +280,10 @@ export default class App extends Component {
 
         return true;
     }
-    // _handelConnectivityChange = (isConnected) => {
-    //     this.setState({ isConnected });
-    //     store.dispatch(setNetwork(this.state.isConnected));
-    //     console.log("Network: " + this.state.isConnected);
-    //     if (!this.state.isConnected) {
-    //         this.error_connection();
-    //     }
-    // }
 
     handelConnectivityChange = (isConnected) => {
         this.setState({ isConnected: 'true' });
         store.dispatch(setNetwork(this.state.isConnected));
-        console.log("Network: " + this.state.isConnected);
         if (!this.state.isConnected) {
             this.error_connection();
         }
@@ -290,8 +293,7 @@ export default class App extends Component {
         if (currentUser) {
             if (store.getState().auth.isAuth === false) {
                 store.dispatch(authActions.login(currentUser));
-                console.log('onUserChanged: ' + JSON.stringify(currentUser));
-                console.log("Đã đăng nhập");
+                // console.log('onUserChanged: ' + JSON.stringify(currentUser));
                 this.setState({ isLogin: true, userProfile: currentUser });
             }
         }
@@ -300,33 +302,50 @@ export default class App extends Component {
     appAsync() {
         if (this.state.isConnected) {
             ls.get('firebaseConfig').then((data) => {
-                // console.log(data)
                 if (data !== null) {
+                    console.log("get local firebase");
                     store.dispatch(fetchData(data));
                     if (this.state.isLogin) {
-                        this.isUserFetchData();
-                        // updateUserToken();
-                        updateEmailVerified();
+                        setUserData(store).then(() => {
+                            // updateUserToken();
+                            updateEmailVerified();
+                        });
+                        fetchUserData(store);
                     }
-                    this.isFetchData().then(() => {
-                        this.setState({ isReady: true });
+                    this.getLocalGameData().then(() => {
+                        setTimeout(() => {
+                            this.setState({ isReady: true });
+                        }, 1500);
                     })
+                    // fetchGameData(store).then(() => {
+                    //     this.setState({ isReady: true });
+                    // })
                     // setTimeout(() => {
-                    firebaseFetchData(store);
+                    fetchFirebaseData(store);
                     // }, 100);
                 } else {
-                    firebaseFetchData(store).then(() => {
-                        if (store.getState().firebase.isFetchData) {
-                            if (this.state.isLogin) {
-                                this.isUserFetchData();
-                                // updateUserToken();
-                                updateEmailVerified();
+                    console.log("get firebase");
+                    fetchFirebaseData(store).then((data) => {
+                        if (data != '') {
+                            if (store.getState().firebase.isFetchData) {
+                                if (this.state.isLogin) {
+                                    setUserData(store).then(() => {
+                                        // updateUserToken();
+                                        updateEmailVerified();
+                                    })
+                                    fetchUserData(store);
+                                }
+                                this.getLocalGameData().then(() => {
+                                    setTimeout(() => {
+                                        this.setState({ isReady: true });
+                                    }, 1500);
+                                })
+                                // fetchGameData(store).then(() => {
+                                //     this.setState({ isReady: true });
+                                // })
+                            } else {
+                                console.log('Lỗi kết nối Firebase');
                             }
-                            this.isFetchData().then(() => {
-                                this.setState({ isReady: true });
-                            })
-                        } else {
-                            console.log('Lỗi kết nối Firebase');
                         }
                     })
                         .catch((err) => {
@@ -337,24 +356,47 @@ export default class App extends Component {
         }
     }
 
-    async isFetchData() {
-        // await getAdsListData(store);
-        // await getNewsListData(store);
-        getAdsListData(store);
-        getGameListData(store);
-        getGameH5ListData(store);
-        getGameGiftListData(store);
-        getGiftListData(store);
+    async getLocalGameData() {
+        await ls.get('getGameListData').then((data) => {
+            if (data !== null) {
+                store.dispatch(getGameList(data));
+            }
+        });
+        await ls.get('getGameH5ListData').then((data) => {
+            if (data !== null) {
+                store.dispatch(getGameH5List(data));
+            }
+        });
+        await ls.get('getGameGiftList').then((data) => {
+            if (data !== null) {
+                store.dispatch(getGameGiftList(data));
+            }
+        });
+        await ls.get('getGiftListData').then((data) => {
+            if (data !== null) {
+                store.dispatch(getGiftList(data));
+            }
+        });
+        fetchGameData(store);
     }
+    // async isFetchData() {
+    //     // await getNewsListData(store);
+    //     await fetchGameData(store);
+    //     // await getAdsListData(store);
+    //     // getGameListData(store);
+    //     // getGameH5ListData(store);
+    //     // getGameGiftListData(store);
+    //     // getGiftListData(store);
+    // }
 
-    async isUserFetchData() {
-        setUserProfileData(store);
-        userCountMessData(store);
-        getNotificationListData(store);
-        getUserGiftListData(store);
-        getUserCardListData(store);
-        getUserTransactionListData(store);
-    }
+    // async isUserFetchData() {
+    // setUserProfileData(store);
+    // userCountMessData(store);
+    // getNotificationListData(store);
+    // getUserGiftListData(store);
+    // getUserCardListData(store);
+    // getUserTransactionListData(store);
+    // }
 
     onReceived(notification) {
         console.log("Notification received: ", notification);
@@ -369,7 +411,7 @@ export default class App extends Component {
 
     onIds(device) {
         store.dispatch(setOneSignal(device));
-        console.log('Device info: ', device);
+        // console.log('Device info: ', device);
     }
 
     loading() {
@@ -377,10 +419,11 @@ export default class App extends Component {
             <ImageBackground source={drawerCover} style={[styles.backgroundImage, { width: this.state.width, height: this.state.height }]}>
                 <View style={styles.container}>
                     <Image source={logoGameID} style={{
+                        width: 250,
                         height: 125,
-                        width: 204,
                         marginBottom: 5,
-                    }} />
+                        flex: 1,
+                    }} resizeMode='contain' />
                     <ActivityIndicator size="small" color="#fff" />
                     <Text style={{ position: 'absolute', bottom: -60, fontSize: 14, color: '#fff' }}>{'\u00A9'}GAMEID.VN 2020</Text>
                 </View>
@@ -393,7 +436,6 @@ export default class App extends Component {
             this.error_connection();
         } else {
             this.appAsync();
-            // console.log('checkConnection');
         }
     }
 
