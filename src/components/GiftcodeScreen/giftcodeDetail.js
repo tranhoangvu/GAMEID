@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+    FlatList,
     Platform,
     ActivityIndicator,
     ListView,
@@ -9,7 +10,8 @@ import {
     Modal,
     Alert,
     RefreshControl,
-    Image
+    Image,
+    ScrollView
 } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View } from "native-base";
 import { connect } from "react-redux";
@@ -42,14 +44,20 @@ class GiftcodeDetailScreen extends Component {
             uniqueId: '',
             ModalVisibleStatus: false,
             refreshing: false,
+            isLoading: false,
         };
         this.showSlideAnimationDialog = this.showSlideAnimationDialog.bind(this);
+    }
+
+    componentDidMount() {
+        const isGiftList = this.props.appGameList.isGiftList;
+        this.setState({ isLoading: isGiftList })
     }
 
     _onRefresh() {
         this.setState({ refreshing: true });
         setTimeout(() => {
-            refeshData("4");
+            refeshData("giftData");
             this.setState({ refreshing: false });
         }, 1500);
     }
@@ -65,9 +73,6 @@ class GiftcodeDetailScreen extends Component {
 
     ShowModalFunction(visible) {
         this.setState({ ModalVisibleStatus: visible });
-    }
-
-    componentDidMount() {
     }
 
     showSlideAnimationDialog(rowData) {
@@ -222,43 +227,46 @@ class GiftcodeDetailScreen extends Component {
         if (newData.length === 0) {
             return this.giftListNull()
         }
+        const renderGiftList = ({ item }) => (
+            <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
+                <TouchableOpacity
+                    style={styles.row}
+                    onPress={() => { this.showSlideAnimationDialog(item); }}
+                    activeOpacity={0.7}
+                >
+                    <Left>
+                        {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
+                        <FastImage
+                            style={{ width: 64, height: 64 }}
+                            source={{
+                                uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_icon_link,
+                                // headers: { Authorization: '9876543210' },
+                                priority: FastImage.priority.normal,
+                                cache: FastImage.cacheControl.immutable,
+                                //cache: FastImage.cacheControl.web,
+                                //cache: FastImage.cacheControl.cacheOnly,
+                            }}
+                        />
+                    </Left>
+                    <Body>
+                        <Text style={{ fontSize: 16 }}>{item.giftcode_event_name}</Text>
+                        <Text style={{ fontSize: 14 }}>Thời hạn: {item.giftcode_event_end_date}</Text>
+                        <Text style={{ fontSize: 14 }}>Còn lại: {item.remain_giftcode}/{item.total_giftcode}</Text>
+                    </Body>
+                    <Right>
+                        <Button transparent onPress={() => { this.showSlideAnimationDialog(item); }}>
+                            <Text style={{ fontSize: 14 }}>Nhận</Text>
+                        </Button>
+                    </Right>
+                </TouchableOpacity>
+            </ListItem>
+        );
         return (
             <View>
-                <List dataArray={newData}
-                    renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
-                            <TouchableOpacity
-                                style={styles.row}
-                                onPress={() => { this.showSlideAnimationDialog(rowData); }}
-                                activeOpacity={0.7}
-                            >
-                                <Left>
-                                    {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
-                                    <FastImage
-                                        style={{ width: 64, height: 64 }}
-                                        source={{
-                                            uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link,
-                                            // headers: { Authorization: '9876543210' },
-                                            priority: FastImage.priority.normal,
-                                            cache: FastImage.cacheControl.immutable,
-                                            //cache: FastImage.cacheControl.web,
-                                            //cache: FastImage.cacheControl.cacheOnly,
-                                        }}
-                                    />
-                                </Left>
-                                <Body>
-                                    <Text style={{ fontSize: 16 }}>{rowData.giftcode_event_name}</Text>
-                                    <Text style={{ fontSize: 14 }}>Thời hạn: {rowData.giftcode_event_end_date}</Text>
-                                    <Text style={{ fontSize: 14 }}>Còn lại: {rowData.remain_giftcode}/{rowData.total_giftcode}</Text>
-                                </Body>
-                                <Right>
-                                    <Button transparent onPress={() => { this.showSlideAnimationDialog(rowData); }}>
-                                        <Text style={{ fontSize: 14 }}>Nhận</Text>
-                                    </Button>
-                                </Right>
-                            </TouchableOpacity>
-                        </ListItem>
-                    }
+                <FlatList
+                    data={newData}
+                    renderItem={renderGiftList}
+                    keyExtractor={item => item.id}
                 />
             </View>
         )
@@ -277,11 +285,10 @@ class GiftcodeDetailScreen extends Component {
         if (giftListData !== null) {
             return this.giftcodeList();
         }
-        return this.giftListNull()
+        return this.loading()
     }
 
     render() {
-        const isGiftList = this.props.appGameList.isGiftList;
         return (
             <Container style={{ backgroundColor: '#fff' }}>
                 <Header hasTabs>
@@ -295,16 +302,16 @@ class GiftcodeDetailScreen extends Component {
                     </Body>
                     <Right />
                 </Header>
-                <Content refreshControl={this._refreshControl()} >
+                <ScrollView style={{ flex: 1 }} refreshControl={this._refreshControl()} >
                     <View style={styles.giftview}>
                         {this.giftcodeDialog()}
-                        {isGiftList ? (
+                        {this.state.isLoading ? (
                             this.giftListView()
                         ) : (
-                                this.loading()
+                                this.giftListNull()
                             )}
                     </View>
-                </Content>
+                </ScrollView>
             </Container>
         );
     }

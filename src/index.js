@@ -29,9 +29,10 @@ import NetInfo from '@react-native-community/netinfo';
 import OneSignal from 'react-native-onesignal';
 import {
     fetchFirebaseData,
+    fetchNewsData,
     fetchGameData,
-    setUserData,
     fetchUserData,
+    setUserProfileData,
     // getNewsListData,
     // getAdsListData,
     // getGameListData,
@@ -53,6 +54,8 @@ import {
     getGameList,
     getGameH5List,
     getNewsList,
+    getFeatureNewsList,
+    getLatestNewsList,
     getAdsList,
     getGameGiftList,
     getGiftList,
@@ -139,16 +142,20 @@ export function releaseStatus() {
     }
 }
 
+export function loadMoreNews(page) {
+    fetchNewsData(store, "latestNewsData", page);
+}
+
 export function refeshData(flag) {
     switch (flag) {
         case "1": //login
-            setUserData(store).then((data) => {
+            setUserProfileData(store).then((data) => {
                 if (data) {
                     // updateUserToken();
                     updateEmailVerified();
+                    fetchUserData(store);
                 }
             })
-            fetchUserData(store);
             // setUserProfileData(store).then(() => {
             //     getNotificationListData(store).then(() => {
             //         userCountMessData(store);
@@ -162,7 +169,7 @@ export function refeshData(flag) {
             break;
 
         case "2": //getGiftcode
-            fetchUserData(store);
+            fetchUserData(store, 'userGift');
             // getUserGiftListData(store);
             // getUserCardListData(store);
             // getUserTransactionListData(store);
@@ -195,6 +202,21 @@ export function refeshData(flag) {
         case "5": //login
             //userCountMessData(store);
             store.dispatch(userCountMess(null));
+            break;
+        case "gameData":
+            fetchGameData(store, 'gameData');
+            break;
+        case "h5Data":
+            fetchGameData(store, 'h5Data');
+            break;
+        case "newsData":
+            fetchNewsData(store);
+            break;
+        case "gameGiftData":
+            fetchGameData(store, 'gameGiftData');
+            break;
+        case "giftData":
+            fetchGameData(store, 'giftData');
             break;
 
         default:
@@ -306,12 +328,14 @@ export default class App extends Component {
                     console.log("get local firebase");
                     store.dispatch(fetchData(data));
                     if (this.state.isLogin) {
-                        setUserData(store).then(() => {
+                        setUserProfileData(store).then(() => {
+                            fetchUserData(store);
                             // updateUserToken();
                             updateEmailVerified();
                         });
-                        fetchUserData(store);
                     }
+                    // this.getNews();
+                    this.getLocalNewsData();
                     this.getLocalGameData().then(() => {
                         setTimeout(() => {
                             this.setState({ isReady: true });
@@ -329,13 +353,15 @@ export default class App extends Component {
                         if (data != '') {
                             if (store.getState().firebase.isFetchData) {
                                 if (this.state.isLogin) {
-                                    setUserData(store).then(() => {
+                                    setUserProfileData(store).then(() => {
+                                        fetchUserData(store);
                                         // updateUserToken();
                                         updateEmailVerified();
                                     })
-                                    fetchUserData(store);
                                 }
-                                this.getLocalGameData().then(() => {
+                                // this.getNews();
+                                fetchNewsData(store);
+                                fetchGameData(store).then(() => {
                                     setTimeout(() => {
                                         this.setState({ isReady: true });
                                     }, 1500);
@@ -356,25 +382,67 @@ export default class App extends Component {
         }
     }
 
+    // async getNews() {
+    //     await ls.get('getNewsListData').then((data) => {
+    //         if (data !== null) {
+    //             store.dispatch(getNewsList(data));
+    //         } else {
+    //             getNewsListData(store);
+    //         }
+    //     });
+    // }
+    async getLocalNewsData() {
+        await ls.get('getFeatureNewsListData').then((data) => {
+            if (data !== null) {
+                store.dispatch(getFeatureNewsList(data));
+            } else {
+                fetchNewsData(store, 'featureNewsData');
+            }
+        });
+        await ls.get('getLatestNewsListData').then((data) => {
+            if (data !== null) {
+                store.dispatch(getLatestNewsList(data));
+            } else {
+                fetchNewsData(store, 'latestNewsData');
+            }
+        });
+        fetchNewsData(store);
+    }
+
     async getLocalGameData() {
+        await ls.get('getNewsListData').then((data) => {
+            if (data !== null) {
+                store.dispatch(getNewsList(data));
+            } else {
+                fetchGameData(store, 'newsData');
+            }
+        });
         await ls.get('getGameListData').then((data) => {
             if (data !== null) {
                 store.dispatch(getGameList(data));
+            } else {
+                fetchGameData(store, 'gameData');
             }
         });
         await ls.get('getGameH5ListData').then((data) => {
             if (data !== null) {
                 store.dispatch(getGameH5List(data));
+            } else {
+                fetchGameData(store, 'h5Data');
             }
         });
         await ls.get('getGameGiftList').then((data) => {
             if (data !== null) {
                 store.dispatch(getGameGiftList(data));
+            } else {
+                fetchGameData(store, 'gameGiftData');
             }
         });
         await ls.get('getGiftListData').then((data) => {
             if (data !== null) {
                 store.dispatch(getGiftList(data));
+            } else {
+                fetchGameData(store, 'giftData');
             }
         });
         fetchGameData(store);

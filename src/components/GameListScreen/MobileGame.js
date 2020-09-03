@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert } from 'react-native';
+import { ScrollView, FlatList, Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Image, Alert } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View, Badge } from "native-base";
 import { connect } from "react-redux";
 import AppLink from '../../lib/appLink.js';
@@ -17,14 +17,24 @@ class MobileGame extends Component {
         super(props);
         this.state = {
             refreshing: false,
+            isLoading: this.props.appGameList.isGameList || false,
+            gameData: this.props.appGameList.gameList || "",
         };
     }
 
+    componentDidMount() {
+        console.log("isGameList: " + this.state.isLoading);
+    }
+
     _onRefresh() {
-        this.setState({ refreshing: true });
+        this.setState({
+            refreshing: true
+        });
         setTimeout(() => {
-            refeshData("4");
-            this.setState({ refreshing: false });
+            refeshData("gameData");
+            this.setState({
+                refreshing: false
+            });
         }, 1500);
     }
 
@@ -37,8 +47,6 @@ class MobileGame extends Component {
         )
     }
 
-    componentDidMount() {
-    }
 
     badgeNotification() {
         const userCountMess = this.props.appGameList.userCountMess;
@@ -104,53 +112,55 @@ class MobileGame extends Component {
     }
 
     gameList() {
+        const renderGameList = ({ item }) => (
+            <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
+                <TouchableOpacity
+                    style={styles.row}
+                    onPress={() => this.openApp(item.game_ios_link, item.game_ios_scheme, item.game_android_link)}
+                    activeOpacity={0.7}
+                >
+                    <Left>
+                        {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
+                        <FastImage
+                            style={{ width: 64, height: 64 }}
+                            source={{
+                                uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_icon_link,
+                                // headers: {Authorization: '9876543210' },
+                                priority: FastImage.priority.high,
+                                cache: FastImage.cacheControl.immutable,
+                                //cache: FastImage.cacheControl.web,
+                                //cache: FastImage.cacheControl.cacheOnly,
+                            }}
+                        />
+                    </Left>
+                    <Body>
+                        <Text style={{ fontSize: 16 }}>{item.game_name}</Text>
+                        <Text style={{ fontSize: 14 }}>Lượt tải: {item.game_total_download}</Text>
+                        {this.starRating(item.game_rating)}
+                    </Body>
+                    <Right>
+                        <Button transparent onPress={() => this.openApp(item.game_ios_link, item.game_ios_scheme, item.game_android_link)}>
+                            <Text style={{ fontSize: 14 }}>Tải game</Text>
+                        </Button>
+                    </Right>
+                </TouchableOpacity>
+            </ListItem>
+        );
+
         return (
             <View style={{ flex: 1 }}>
-                <List
-                    dataArray={this.props.appGameList.gameList}
-                    renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
-                            <TouchableOpacity
-                                style={styles.row}
-                                onPress={() => this.openApp(rowData.game_ios_link, rowData.game_ios_scheme, rowData.game_android_link)}
-                                activeOpacity={0.7}
-                            >
-                                <Left>
-                                    {/* <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} /> */}
-                                    <FastImage
-                                        style={{ width: 64, height: 64 }}
-                                        source={{
-                                            uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link,
-                                            // headers: {Authorization: '9876543210' },
-                                            priority: FastImage.priority.high,
-                                            cache: FastImage.cacheControl.immutable,
-                                            //cache: FastImage.cacheControl.web,
-                                            //cache: FastImage.cacheControl.cacheOnly,
-                                        }}
-                                    />
-                                </Left>
-                                <Body>
-                                    <Text style={{ fontSize: 16 }}>{rowData.game_name}</Text>
-                                    <Text style={{ fontSize: 14 }}>Lượt tải: {rowData.game_total_download}</Text>
-                                    {this.starRating(rowData.game_rating)}
-                                </Body>
-                                <Right>
-                                    <Button transparent onPress={() => this.openApp(rowData.game_ios_link, rowData.game_ios_scheme, rowData.game_android_link)}>
-                                        <Text style={{ fontSize: 14 }}>Tải game</Text>
-                                    </Button>
-                                </Right>
-                            </TouchableOpacity>
-                        </ListItem>
-                    }
+                <FlatList
+                    data={this.props.appGameList.gameList}
+                    renderItem={renderGameList}
+                    keyExtractor={item => item.id}
                 />
             </View>
         )
     }
 
     gameListView() {
-        const gameData = this.props.appGameList.gameList;
-        if (gameData !== null) {
-            gameData.map((item) => {
+        if (this.props.appGameList.gameList !== null) {
+            this.props.appGameList.gameList.map((item) => {
                 FastImage.preload([
                     {
                         uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_icon_link
@@ -163,7 +173,7 @@ class MobileGame extends Component {
 
             return this.gameList();
         }
-        return this.gameNull()
+        return this.loading()
     }
 
     checkLogin() {
@@ -182,15 +192,14 @@ class MobileGame extends Component {
     }
 
     render() {
-        const isGameListLoading = this.props.appGameList.isGameList;
         return (
-            <Content refreshControl={this._refreshControl()} >
-                {isGameListLoading ? (
+            <ScrollView style={{ flex: 1 }} refreshControl={this._refreshControl()} >
+                {this.state.isLoading ? (
                     this.gameListView()
                 ) : (
-                        this.loading()
+                        this.gameNull()
                     )}
-            </Content>
+            </ScrollView>
         );
     }
 }

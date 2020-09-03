@@ -1,114 +1,134 @@
-import React from "react";
-import { AppRegistry, View, StatusBar, StyleSheet, Dimensions, Linking, DeviceEventEmitter, ScrollView, Image, TouchableOpacity, RefreshControl, Alert, Modal } from "react-native";
-import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, Badge } from "native-base";
-import WebView from 'react-native-webview';
+import React, { Component } from "react";
+import { Share, FlatList, Dimensions, View, Linking, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Modal } from "react-native";
+import { Container, Header, Title, Left, Icon, Right, Button, Body, Text, Badge } from "native-base";
 import { connect } from "react-redux";
-import Timestamp from '../../lib/timestamp';
-import { releaseStatus } from '../../index';
+import { refeshData } from '../../index.js';
+import HTML from "react-native-render-html";
+import axios from 'axios';
+import { fonts } from "../../utils/fonts";
+import truncate from "truncate-html";
+import styles from "./style";
+import BookMarkShare from "../Lib/BookMarkShare/index";
+import ListViews from "../Lib/ListView/index";
+import TextBold from "../Lib/TextBold/index";
 import FastImage from 'react-native-fast-image';
+import { releaseStatus } from '../../index';
+
+let moment = require('moment'); //load moment module to set local language
+require('moment/locale/vi'); //for import moment local language file during the application build
+moment.locale('vi');//set moment local language to zh-cn
 
 var ls = require('../../lib/localStorage');
 
-const screen = Dimensions.get('window');
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        // position: 'absolute',
-    },
-    horizontal: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 10
-    },
-    mb: {
-        right: 0,
-        flex: 1,
-        position: 'absolute'
-    },
-    icon_mb: {
-        right: 10
-    },
-    row: {
-        // width: screen.width - 30,
-        flexDirection: 'row',
-    },
-    containerModal: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-        // position: 'relative',
-    },
-    MainContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-    },
-    ModalInsideView: {
-        alignItems: 'center',
-        backgroundColor: "#fff",
-        height: '75%',
-        width: '90%',
-        borderRadius: 10,
-        borderWidth: 0.1,
-        borderColor: '#000',
-    },
-    TextStyle: {
-        marginTop: 10,
-        fontSize: 16,
-        color: "#000",
-    },
-    ModalButton: {
-        flexDirection: 'row',
-        position: 'absolute',
-        bottom: 0,
-    },
-    closeView: {
-        position: 'absolute',
-        top: 0,
-        right: 2,
-    },
-})
+class NewsScreen extends Component {
 
-export class NewsScreen extends React.Component {
-
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        this.page = 1;
+        this.onEndReachedCalledDuringMomentum = true;
         this.state = {
-            width: Dimensions.get('window').width,
-            height: Dimensions.get('window').height,
+            loading: false, // user list loading
+            refreshing: false,
             ModalVisibleStatus: false,
             ads_image_link: '',
             ads_link: '',
-            url: ''
-        }
+            url: "",
+            newsData: this.props.myServerData.newsList || "",
+            featureNewsData: this.props.myServerData.featureNewsList || "",
+            latestNewsData: this.props.myServerData.latestNewsList || "",
+            adsData: this.props.myServerData.adsList || "",
+            isNewsList: this.props.myServerData.isNewsList || false,
+            isFeatureNewsList: this.props.myServerData.isFeatureNewsList || false,
+            isLatestNewsList: this.props.myServerData.isLatestNewsList || false,
+            isAdsList: this.props.myServerData.isAdsList || false,
+        };
     }
+
     componentDidMount() {
-        // console.log("componentDidMount");
         this.checkAds();
-        this.setState({
-            url: this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url
-        });
+        // console.log("isNewsList: " + this.state.isNewsList);
+        // console.log("isAdsList: " + this.state.isAdsList);
+    }
+
+    UNSAFE_componentWillMount() {
     }
 
     componentWillUnmount() {
     }
 
-    _onNavigationStateChange(webViewState) {
-        const weburl = webViewState.url;
-        const uri = this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url;
-        if (weburl !== uri && weburl.toString().substring(0, 4) === 'http') {
-            Linking.canOpenURL(webViewState.url).then(supported => {
-                if (supported) {
-                    this.webview.stopLoading();
-                    this.props.navigation.navigate("Webview", { weblink: weburl });
-                } else {
-                    console.log("link error");
-                }
-            }).catch(err => console.error('An error occurred', err));
+    async _onRefresh() {
+        this.setState({ refreshing: true });
+        refeshData("newsData");
+        const url = this.props.myFirebaseConfig.firebaseConfig.vtcapp_latest_news_api_url + "&page=1";
+        await axios.get(url)
+            .then(res => {
+                let data = res.data
+                this.setState({ refreshing: false, latestNewsData: data }) // false isRefreshing flag for disable pull to refresh indicator, and clear all data and store only first page data
+            })
+            .catch(error => {
+                this.setState({ refreshing: false, error: 'Something just went wrong' }) // false isRefreshing flag for disable pull to refresh
+            });
+        this.setState({ refreshing: false });
+        // setTimeout(() => {
+        //     refeshData("newsData");
+        //     this.setState({ refreshing: false });
+        // }, 3000);
+    }
+
+    _refreshControl() {
+        return (
+            <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._onRefresh.bind(this)}
+            />
+        )
+    }
+
+    _showResult(result) {
+        console.log(result);
+    }
+    // _shareTextWithTitle = () => {
+    //     Share.share(
+    //         {
+    //             message: this.state.url
+    //         },
+    //         {
+    //             dialogTitle: "This is share dialog title",
+    //             excludedActivityTypes: [
+    //                 "com.apple.UIKit.activity.PostToTwitter",
+    //                 "com.apple.uikit.activity.mail"
+    //             ],
+    //             tintColor: "green"
+    //         }
+    //     )
+    //         .then(this._showResult)
+    //         .catch(err => console.log(err));
+    // };
+
+    handleLoadMore = async () => {
+        if (!this.state.loading) {
+            this.page = this.page + 1; // increase page by 1
+            this.fetchMore(this.page); // method for API call 
         }
+    };
+
+    async fetchMore(page) {
+        //stackexchange User API url
+        const url = this.props.myFirebaseConfig.firebaseConfig.vtcapp_latest_news_api_url + "&page=" + page;
+        this.setState({ loading: true })
+        await axios.get(url)
+            .then(res => {
+                let listData = this.state.latestNewsData;
+                let data = listData.concat(res.data); //concate list with response
+                this.setState({ loading: false, latestNewsData: data });
+            })
+            .catch(error => {
+                this.setState({ loading: false, error: 'Something just went wrong' })
+            });
+    }
+
+    ShowModalFunction(visible) {
+        this.setState({ ModalVisibleStatus: visible });
     }
 
     badgeNotification() {
@@ -120,10 +140,6 @@ export class NewsScreen extends React.Component {
                 </Badge>
             )
         }
-    }
-
-    ShowModalFunction(visible) {
-        this.setState({ ModalVisibleStatus: visible });
     }
 
     openNews(newsURL) {
@@ -142,6 +158,200 @@ export class NewsScreen extends React.Component {
         return (
             <View style={[styles.container, styles.horizontal]}>
                 <ActivityIndicator size="small" color="#0000ff" />
+            </View>
+        )
+    }
+
+    newsList() {
+        const tagsStyles = {
+            lineHeight: 1.5
+        };
+        const baseFontStyle = {
+            color: "#041A33",
+            fontFamily: fonts.PoppinsSemiBold,
+            fontSize: 16,
+            textAlign: "justify",
+            textAlignVertical: "center",
+            padding: 5
+        };
+        const renderFeature = ({ item }) => (
+            <View style={styles.itemContainer}>
+                <TouchableOpacity
+                    style={{ flex: 1, flexDirection: "column" }}
+                    onPress={() =>
+                        this.props.navigation.navigate("NewsDetails", { item })
+                    }
+                >
+                    <FastImage
+                        style={styles.imageWrapper}
+                        source={{
+                            uri: item.featured_media != 0 ? item._embedded["wp:featuredmedia"]["0"].source_url : require("../../assets/images/img_not_found.jpg"),
+                            priority: FastImage.priority.high,
+                            cache: FastImage.cacheControl.immutable,
+                        }} />
+
+                    {/* <ImageBackground
+                        source={
+                            item.featured_media != 0
+                                ? {
+                                    uri:
+                                        item._embedded["wp:featuredmedia"]["0"]
+                                            .source_url
+                                }
+                                : require("../../assets/images/img_not_found.jpg")
+                        }
+                        style={styles.imageWrapper}
+                        imageStyle={{ borderRadius: 10 }}
+                    /> */}
+                    <View style={{ flex: 1, justifyContent: "flex-start" }}>
+                        <View style={styles.ListContentText}>
+                            <HTML
+                                html={truncate(item.title.rendered, {
+                                    length: 45,
+                                    stripTags: true
+                                })}
+                                tagsStyles={tagsStyles}
+                                allowFontScaling
+                                baseFontStyle={baseFontStyle}
+                            />
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </View>
+        );
+        const renderLasest = ({ item }) => (
+            <View
+                style={{
+                    flexDirection: "column",
+                    flex: 1,
+                    borderBottomColor: "#E4ECF5",
+                    borderBottomWidth: 0.95,
+                    marginBottom: 10,
+
+                }}
+            >
+                <View style={{ flex: 0.6 }}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            this.props.navigation.navigate("NewsDetails", {
+                                item
+                            })
+                        }
+                    >
+                        <ListViews
+                            Categories={
+                                item._embedded["wp:term"][0][0]["name"]
+                            }
+                            Title={item.title.rendered}
+                            source={
+                                item.featured_media != 0
+                                    ?
+                                    // uri:
+                                    item._embedded["wp:featuredmedia"]["0"]
+                                        .source_url
+
+                                    : require("../../assets/images/img_not_found.jpg")
+                            }
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View style={{ flex: 0.15 }}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            Share.share(
+                                {
+                                    message: item.link
+                                },
+                                {
+                                    dialogTitle: "This is share dialog title",
+                                    excludedActivityTypes: [
+                                        "com.apple.UIKit.activity.PostToTwitter",
+                                        "com.apple.uikit.activity.mail"
+                                    ],
+                                    tintColor: "green"
+                                }
+                            )
+                                .then(this._showResult)
+                                .catch(err => console.log(err))
+                        }
+                    >
+                        <BookMarkShare Time={item.date} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+        return (
+            <View style={{ flex: 1, width: '100%', height: '100%' }}>
+                {/* Fetch FeatureNews */}
+                < View >
+                    <FlatList
+                        data={this.props.myServerData.featureNewsList}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
+                        renderItem={renderFeature}
+                        keyExtractor={item => item.id}
+                    />
+                </ View >
+                {/* Fetch LatestNews */}
+                < View style={{ marginHorizontal: 15 }
+                }>
+                    <TextBold extraStyle={styles.Title} Text="Tin mới nhất" />
+                    <View
+                        cornerRadius={5}
+                        cardElevation={2}
+                        cardMaxElevation={2}
+                        style={{ marginTop: 15, marginBottom: 5 }}
+                    >
+                        <FlatList
+                            showsVerticalScrollIndicator={false}
+                            // data={this.props.myServerData.latestNewsList}
+                            data={this.state.latestNewsData}
+                            renderItem={renderLasest}
+                            keyExtractor={item => item.id}
+                            ListFooterComponent={this.renderFooter.bind(this)}
+                        />
+                    </View>
+                </View >
+                {/* <List
+                    dataArray={this.props.myServerData.newsList}
+                    renderRow={rowData =>
+                        <ListItem style={{ paddingTop: 5, paddingBottom: 5, paddingRight: 5, marginLeft: 5, marginRight: 5, }}>
+                            <TouchableOpacity
+                                style={styles.row}
+                                onPress={() => this.openNews(rowData.link)}
+                                activeOpacity={0.7}>
+                                <Card style={{
+                                    // shadowOffset: { width: 5, height: 5 },
+                                    width: '100%',
+                                    // borderRadius: 12,
+                                    alignSelf: 'center',
+                                    marginBottom: 10,
+                                }}>
+                                    <CardItem>
+                                        <Image source={{ uri: rowData.better_featured_image.source_url }} style={{ height: 150, width: '100%', flex: 1, resizeMode: 'cover', }} />
+                                    </CardItem>
+                                    <CardItem>
+                                        <Left>
+                                            <Text style={{ flexDirection: 'row', marginLeft: -5 }}>{rowData.title.rendered}</Text>
+                                        </Left>
+                                        <Right>
+                                            <Timestamp time={rowData.date} component={Text} format='date' />
+                                        </Right>
+                                    </CardItem>
+                                </Card>
+                            </TouchableOpacity>
+                        </ListItem>
+                    }
+                />
+                <Right>
+                    <TouchableOpacity
+                        style={styles.row}
+                        onPress={() => this.openNews(this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url + 'page/2/')}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={{ marginTop: 10, marginBottom: 10, }} onPress={() => this.openNews(this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url + 'page/2/')}>Xem thêm</Text>
+                    </TouchableOpacity>
+                </Right> */}
             </View>
         )
     }
@@ -192,7 +402,7 @@ export class NewsScreen extends React.Component {
                             ])
                             this.setState({
                                 ads_image_link: this.props.myFirebaseConfig.firebaseConfig.vtcapp_image_url + this.props.myServerData.adsList[0].app_ads_image_link,
-                                ads_link: this.props.myServerData.adsList[0].app_ads_link
+                                ads_link: this.props.myServerData.adsList.app_ads_link
                             });
                             setTimeout(() => {
                                 this.ShowModalFunction(true);
@@ -268,8 +478,32 @@ export class NewsScreen extends React.Component {
         )
     }
 
+    renderFooter = () => {
+        //it will show indicator at the bottom of the list when data is loading otherwise it returns null
+        if (!this.state.loading) return null;
+        return (
+            <View style={{ flex: 1, height: 50, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator
+                    style={{
+                        flex: 1,
+                        // alignItems: 'center',
+                        // justifyContent: 'center',
+                        color: '#000',
+                        height: 80
+                    }}
+                />
+                <Text style={{ fontSize: 14 }}>Đang tải tin tức...</Text>
+            </View>
+        );
+    };
+
+    isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        const paddingToBottom = 20
+        return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom
+    }
+
     render() {
-        const { vtcapp_news_url } = this.props.myFirebaseConfig.firebaseConfig;
         return (
             <Container>
                 <Header>
@@ -294,24 +528,29 @@ export class NewsScreen extends React.Component {
                         </Button>
                     </Right>
                 </Header>
-                <Content style={{ backgroundColor: 'white' }} contentContainerStyle={{ flex: 1 }}>
-                    <View style={[styles.container, { width: this.state.width, height: this.state.height }]}>
-                        <WebView
-                            ref={(ref) => { this.webview = ref; }}
-                            source={{ uri: this.state.url }}
-                            startInLoadingState={true}
-                            injectedJavaScript="window.postMessage = String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');"
-                            style={{ flex: 1 }}
-                            scalesPageToFit={true}
-                            javaScriptEnabled={true}
-                            renderLoading={this.renderLoading}
-                            automaticallyAdjustContentInsets={true}
-                            onNavigationStateChange={this._onNavigationStateChange.bind(this)}
-                            cacheEnabled={true}
-                        />
-                    </View>
-                    {this.showAds()}
-                </Content>
+                {/* <View style={{ flex: 1, width: '100%', height: '100%' }}> */}
+                <ScrollView
+                    style={{ flex: 1, backgroundColor: 'white' }}
+                    refreshControl={this._refreshControl()}
+                    scrollEventThrottle={16}
+                    onMomentumScrollEnd={({ nativeEvent }) => {
+                        if (this.isCloseToBottom(nativeEvent)) {
+                            this.setState({ loading: true })
+                            this.handleLoadMore();
+                            // console.log('aaaaaa');
+                        }
+                    }}
+                >
+                    {
+                        this.showAds()
+                    }
+                    {this.props.myServerData.isFeatureNewsList ? (
+                        this.newsList()
+                    ) : (
+                            this.loading()
+                        )}
+                </ScrollView>
+                {/* </View> */}
             </Container>
         );
     }

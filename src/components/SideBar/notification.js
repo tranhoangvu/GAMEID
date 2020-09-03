@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, ListView, TouchableOpacity, StyleSheet, Alert, RefreshControl, Linking } from 'react-native';
+import { ScrollView, FlatList, Platform, ActivityIndicator, ListView, TouchableOpacity, StyleSheet, Alert, RefreshControl, Linking } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View } from "native-base";
 import { connect } from "react-redux";
 import { refeshData } from '../../index.js';
@@ -15,6 +15,9 @@ class Notifi extends Component {
         this.state = {
             refreshing: false,
         };
+    }
+
+    componentDidMount() {
     }
 
     _onRefresh() {
@@ -34,9 +37,6 @@ class Notifi extends Component {
         )
     }
 
-    componentDidMount() {
-    }
-
     loading() {
         return (
             <View style={[styles.container, styles.horizontal]}>
@@ -45,8 +45,8 @@ class Notifi extends Component {
         )
     }
 
-    readNotifi(){
-        if(this.props.myUserProfile.userProfile.uid !== ''){
+    readNotifi() {
+        if (this.props.myUserProfile.userProfile.uid !== '') {
             readNotifi(this.props.myUserProfile.userProfile.uid, this.props.appFire.firebaseConfig.vtcapp_secure_key, this.props.appDevice.uniqueId, this.props.appFire.firebaseConfig.vtcapp_api_url)
         }
     }
@@ -59,7 +59,7 @@ class Notifi extends Component {
                 { text: 'OK', onPress: () => this.props.navigation.navigate('Login') }
             ],
             { cancelable: false }
-        )       
+        )
         return (
             <View style={[styles.container, styles.horizontal]}>
                 <Text>Chưa đăng nhập</Text>
@@ -80,26 +80,30 @@ class Notifi extends Component {
     }
 
     notificationList() {
+        const renderNotiList = ({ item }) => (
+            <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
+                <TouchableOpacity
+                    style={styles.row}
+                    onPress={() => this.openNotifi(item.app_messenger_link)}
+                    activeOpacity={0.7}
+                >
+                    <Left>
+                        <Thumbnail size={55} style={{ width: 55, height: 55 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.app_messenger_icon }} />
+                    </Left>
+                    <Body>
+                        <Text style={{ fontSize: 14 }}>{item.app_messenger_content}</Text>
+                        <Timestamp time={item.app_messenger_date} utc={false} component={Text} format='full' style={{ fontSize: 13 }} />
+                    </Body>
+                </TouchableOpacity>
+            </ListItem>
+        );
+
         return (
             <View>
-                <List dataArray={this.props.appGameList.notificationList}
-                    renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
-                            <TouchableOpacity
-                                style={styles.row}
-                                onPress={() => this.openNotifi(rowData.app_messenger_link)}
-                                activeOpacity={0.7}
-                            >
-                            <Left>
-                                <Thumbnail size={55} style={{ width: 55, height: 55 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.app_messenger_icon }} />
-                            </Left>
-                            <Body>
-                                <Text style={{ fontSize: 14 }}>{rowData.app_messenger_content}</Text>
-                                <Timestamp time={rowData.app_messenger_date} utc={false} component={Text} format='full' style={{ fontSize: 13 }}/>
-                            </Body>
-                            </TouchableOpacity>
-                        </ListItem>
-                    }
+                <FlatList
+                    data={this.props.appGameList.notificationList}
+                    renderItem={renderNotiList}
+                    keyExtractor={item => item.id}
                 />
             </View>
         )
@@ -118,7 +122,7 @@ class Notifi extends Component {
         if (notificationListData !== null) {
             return this.notificationList();
         }
-        return this.notificationListNull()
+        return this.loading()
     }
 
     render() {
@@ -139,21 +143,21 @@ class Notifi extends Component {
                         <Button
                             transparent
                             onPress={() => this.readNotifi()}>
-                            <Icon name="md-done-all"/>
+                            <Icon name="md-done-all" />
                         </Button>
                     </Right>
                 </Header>
-                <Content refreshControl={this._refreshControl()} >
+                <ScrollView style={{ flex: 1 }} refreshControl={this._refreshControl()} >
                     {isAuth ? (
                         isNotificationList ? (
                             this.notificationListView()
                         ) : (
-                                this.loading()
+                                this.notificationListNull()
                             )
                     ) : (
                             this.not_login()
                         )}
-                </Content>
+                </ScrollView>
             </Container>
         );
     }

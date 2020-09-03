@@ -16,9 +16,11 @@
     "@react-native-community/netinfo": "^5.9.4",
     "@react-native-community/viewpager": "^4.0.1",
     "axios": "^0.19.2",
+    "deprecated-react-native-listview": "0.0.6",
     "immutable": "^4.0.0-rc.12",
     "key-mirror": "^1.0.1",
     "md5": "^2.2.1",
+    "moment": "^2.27.0",
     "native-base": "^2.13.12",
     "react": "16.11.0",
     "react-native": "0.62.2",
@@ -31,8 +33,10 @@
     "react-native-gesture-handler": "^1.6.1",
     "react-native-onesignal": "^3.8.1",
     "react-native-reanimated": "^1.9.0",
+    "react-native-render-html": "^4.2.3",
     "react-native-safe-area-context": "^3.0.7",
     "react-native-screens": "^2.9.0",
+    "react-native-timeago": "^0.5.0",
     "react-native-vector-icons": "^6.6.0",
     "react-native-webview": "^10.3.2",
     "react-navigation": "^4.4.0",
@@ -41,7 +45,8 @@
     "react-navigation-tabs": "^2.9.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "truncate-html": "^1.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

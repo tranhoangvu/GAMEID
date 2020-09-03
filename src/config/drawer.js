@@ -17,6 +17,7 @@ import PolicylScreenNavigator from '../components/PolicyScreen';
 import InfoScreenNavigator from '../components/InfoScreen';
 import PhoneLoginScreenNavigator from '../components/LoginScreen/PhoneLogin';
 import PhoneVerificationScreenNavigator from '../components/ProfileScreen/PhoneVerification';
+import NewsDetailsScreenNavigator from '../components/NewsDetailsScreen';
 
 // import { DrawerNavigator } from "react-navigation";
 import { createDrawerNavigator } from 'react-navigation-drawer';
@@ -81,6 +82,10 @@ const HomeScreenRouter = createDrawerNavigator(
         },
         PhoneLogin: {
             screen: PhoneLoginScreenNavigator
+            // screen: () => <PhoneLoginScreenNavigator />
+        },
+        NewsDetails: {
+            screen: NewsDetailsScreenNavigator
             // screen: () => <PhoneLoginScreenNavigator />
         },
     },

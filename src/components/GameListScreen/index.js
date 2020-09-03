@@ -187,15 +187,15 @@ class GameListScreen extends Component {
                         </Button>
                     </Right>
                 </Header>
-                <MobileGame />
-                {/* <Tabs>
+                {/* <MobileGame /> */}
+                <Tabs>
                     <Tab heading="Game Mobile">
                         <MobileGame />
                     </Tab>
                     <Tab heading="Game H5">
                         < H5Game />
                     </Tab>
-                </Tabs> */}
+                </Tabs>
                 {/* <Content refreshControl={this._refreshControl()} >
                     {isGameListLoading ? (
                         this.gameListView()

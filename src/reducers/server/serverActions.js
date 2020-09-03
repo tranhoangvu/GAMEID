@@ -1,6 +1,8 @@
 const {
     SET_USER_PROFILE,
     GET_NEWS_LIST,
+    GET_FEATURE_NEWS_LIST,
+    GET_LATEST_NEWS_LIST,
     GET_ADS_LIST,
     GET_GAME_LIST,
     GET_GAME_H5_LIST,
@@ -29,6 +31,18 @@ export function getNewsList(newsList) {
     return {
         type: GET_NEWS_LIST,
         payload: newsList
+    }
+}
+export function getFeatureNewsList(featureNewsList) {
+    return {
+        type: GET_FEATURE_NEWS_LIST,
+        payload: featureNewsList
+    }
+}
+export function getLatestNewsList(latestNewsList) {
+    return {
+        type: GET_LATEST_NEWS_LIST,
+        payload: latestNewsList
     }
 }
 export function getGameList(gameList) {

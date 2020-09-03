@@ -2,11 +2,11 @@ import keyMirror from 'key-mirror'
 
 export default keyMirror({
     FETCH_DATA: null,
-    
+
     LOG_IN: null,
     FIREBASE_TOKEN: null,
     LOG_OUT: null,
-    
+
     SET_PLATFORM: null,
     SET_UNIQUEID: null,
     SET_ONESIGNAL: null,
@@ -24,6 +24,8 @@ export default keyMirror({
 
     SET_USER_PROFILE: null,
     GET_NEWS_LIST: null,
+    GET_FEATURE_NEWS_LIST: null,
+    GET_LATEST_NEWS_LIST: null,
     GET_ADS_LIST: null,
     GET_GAME_LIST: null,
     GET_GAME_H5_LIST: null,

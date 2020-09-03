@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, ImageBackground, Image, Alert } from 'react-native';
+import { ScrollView, FlatList, Platform, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, ImageBackground, Image, Alert } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View, Badge } from "native-base";
 import { connect } from "react-redux";
 import { refeshData } from '../../index.js';
@@ -14,13 +14,19 @@ class GiftcodeScreen extends Component {
         super(props);
         this.state = {
             refreshing: false,
+            isLoading: false,
         };
+    }
+
+    componentDidMount() {
+        const isGameGiftList = this.props.appGameList.isGameGiftList;
+        this.setState({ isLoading: isGameGiftList })
     }
 
     _onRefresh() {
         this.setState({ refreshing: true });
         setTimeout(() => {
-            refeshData("4");
+            refeshData("gameGiftData");
             this.setState({ refreshing: false });
         }, 1500);
     }
@@ -33,10 +39,6 @@ class GiftcodeScreen extends Component {
             />
         )
     }
-
-    componentDidMount() {
-    }
-
 
     badgeNotification() {
         const userCountMess = this.props.appGameList.userCountMess;
@@ -73,33 +75,35 @@ class GiftcodeScreen extends Component {
     }
 
     gameGiftcodeList() {
+        const renderGameGiftList = ({ item }) => (
+            <ListItem style={{ paddingTop: 0, paddingBottom: 0, height: 150 }}>
+                <TouchableOpacity
+                    style={styles.row}
+                    onPress={() => this.giftcodeDetail(item.game_id, item.game_name)}
+                    activeOpacity={0.7}
+                >
+                    {/* <ImageBackground source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_cover_link }} style={styles.imageBackground} imageStyle={{ borderRadius: 5 }}>
+                                </ImageBackground> */}
+                    <FastImage
+                        style={styles.imageBackground}
+                        source={{
+                            uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_cover_link,
+                            // headers: { Authorization: '9876543210' },
+                            priority: FastImage.priority.high,
+                            cache: FastImage.cacheControl.immutable,
+                            //cache: FastImage.cacheControl.web,
+                            //cache: FastImage.cacheControl.cacheOnly,
+                        }}
+                    />
+                </TouchableOpacity>
+            </ListItem>
+        );
         return (
             <View style={{ flex: 1 }}>
-                <List
-                    dataArray={this.props.appGameList.gameGiftList}
-                    renderRow={rowData =>
-                        <ListItem style={{ paddingTop: 0, paddingBottom: 0, height: 150 }}>
-                            <TouchableOpacity
-                                style={styles.row}
-                                onPress={() => this.giftcodeDetail(rowData.game_id, rowData.game_name)}
-                                activeOpacity={0.7}
-                            >
-                                {/* <ImageBackground source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_cover_link }} style={styles.imageBackground} imageStyle={{ borderRadius: 5 }}>
-                                </ImageBackground> */}
-                                <FastImage
-                                    style={styles.imageBackground}
-                                    source={{
-                                        uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_cover_link,
-                                        // headers: { Authorization: '9876543210' },
-                                        priority: FastImage.priority.high,
-                                        cache: FastImage.cacheControl.immutable,
-                                        //cache: FastImage.cacheControl.web,
-                                        //cache: FastImage.cacheControl.cacheOnly,
-                                    }}
-                                />
-                            </TouchableOpacity>
-                        </ListItem>
-                    }
+                <FlatList
+                    data={this.props.appGameList.gameGiftList}
+                    renderItem={renderGameGiftList}
+                    keyExtractor={item => item.id}
                 />
             </View>
         )
@@ -122,11 +126,10 @@ class GiftcodeScreen extends Component {
         if (gameGiftListData !== null) {
             return this.gameGiftcodeList();
         }
-        return this.gameGiftListNull()
+        return this.loading()
     }
 
     render() {
-        const isGameGiftList = this.props.appGameList.isGameGiftList;
         return (
             <Container style={{ backgroundColor: 'white' }}>
                 <Header>
@@ -151,13 +154,13 @@ class GiftcodeScreen extends Component {
                         </Button>
                     </Right>
                 </Header>
-                <Content refreshControl={this._refreshControl()} >
-                    {isGameGiftList ? (
+                <ScrollView style={{ flex: 1 }} refreshControl={this._refreshControl()} >
+                    {this.state.isLoading ? (
                         this.gameGiftListView()
                     ) : (
-                            this.loading()
+                            this.gameGiftListNull()
                         )}
-                </Content>
+                </ScrollView>
             </Container>
         );
     }

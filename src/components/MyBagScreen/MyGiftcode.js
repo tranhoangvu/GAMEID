@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, ListView, TouchableOpacity, StyleSheet, Alert, RefreshControl, Clipboard } from 'react-native';
+import { ScrollView, FlatList, Platform, ActivityIndicator, ListView, TouchableOpacity, StyleSheet, Alert, RefreshControl, Clipboard } from 'react-native';
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Content, Text, Card, CardItem, Tabs, Tab, ScrollableTab, List, ListItem, Thumbnail, View } from "native-base";
 import { connect } from "react-redux";
 import { refeshData } from '../../index.js';
@@ -13,7 +13,13 @@ class MyGiftcode extends Component {
         super(props);
         this.state = {
             refreshing: false,
+            isLoading: false,
         };
+    }
+
+    componentDidMount() {
+        const isGiftList = this.props.appGameList.isGiftList;
+        this.setState({ isLoading: isGiftList })
     }
 
     _onRefresh() {
@@ -33,7 +39,7 @@ class MyGiftcode extends Component {
         )
     }
 
-    async writeToClipboard (giftcode) {
+    async writeToClipboard(giftcode) {
         await Clipboard.setString(giftcode);
         Alert.alert(
             'Thông báo',
@@ -44,9 +50,6 @@ class MyGiftcode extends Component {
             { cancelable: false }
         )
     };
-    
-    componentDidMount() {
-    }
 
     loading() {
         return (
@@ -56,7 +59,7 @@ class MyGiftcode extends Component {
         )
     }
 
-    not_login(){
+    not_login() {
         // Alert.alert(
         //     'Thông báo',
         //     'Bạn chưa đăng nhập, vui lòng đăng nhập!',
@@ -73,33 +76,36 @@ class MyGiftcode extends Component {
     }
 
     userGifftcodeList() {
+        const renderMyGiftList = ({ item }) => (
+            <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
+                <TouchableOpacity
+                    style={styles.row}
+                    onPress={() => this.writeToClipboard(item.giftcode_code)}
+                    activeOpacity={0.7}
+                >
+                    <Left>
+                        <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + item.game_icon_link }} />
+                    </Left>
+                    <Body>
+                        <Text style={{ fontSize: 16 }}>{item.giftcode_event_name}</Text>
+                        <Text style={{ fontSize: 14 }}>Code: <Text style={{ color: 'red' }}>{item.giftcode_code}</Text></Text>
+                        <Text style={{ fontSize: 14 }}>{item.user_giftcode_date}</Text>
+                        {/* <Timestamp time={rowData.user_giftcode_date} utc={false} component={Text} format='full' style={{ fontSize: 14 }}/> */}
+                    </Body>
+                    <Right>
+                        <Button transparent onPress={() => this.writeToClipboard(item.giftcode_code)}>
+                            <Text style={{ fontSize: 14 }}>Sao chép</Text>
+                        </Button>
+                    </Right>
+                </TouchableOpacity>
+            </ListItem>
+        );
         return (
             <View>
-                <List dataArray={this.props.appGameList.userGiftList}
-                    renderRow={rowData =>
-                        <ListItem thumbnail style={{ paddingTop: 0, paddingBottom: 0 }}>
-                            <TouchableOpacity
-                                style={styles.row}
-                                onPress={() => this.writeToClipboard(rowData.giftcode_code)}
-                                activeOpacity={0.7}
-                            >
-                            <Left>
-                                <Thumbnail square size={50} style={{ width: 64, height: 64 }} source={{ uri: this.props.appFire.firebaseConfig.vtcapp_image_url + rowData.game_icon_link }} />
-                            </Left>
-                            <Body>
-                                <Text style={{ fontSize: 16 }}>{rowData.giftcode_event_name}</Text>
-                                <Text style={{ fontSize: 14 }}>Code: <Text style={{color: 'red'}}>{rowData.giftcode_code}</Text></Text>
-                                <Text style={{ fontSize: 14 }}>{rowData.user_giftcode_date}</Text>
-                                {/* <Timestamp time={rowData.user_giftcode_date} utc={false} component={Text} format='full' style={{ fontSize: 14 }}/> */}
-                            </Body>
-                            <Right>
-                                    <Button transparent onPress={() => this.writeToClipboard(rowData.giftcode_code)}>
-                                    <Text style={{ fontSize: 14 }}>Sao chép</Text>
-                                </Button>
-                            </Right>
-                            </TouchableOpacity>
-                        </ListItem>
-                    }
+                <FlatList
+                    data={this.props.appGameList.userGiftList}
+                    renderItem={renderMyGiftList}
+                    keyExtractor={item => item.id}
                 />
             </View>
         )
@@ -118,7 +124,7 @@ class MyGiftcode extends Component {
         if (userGiftListData !== null) {
             return this.userGifftcodeList();
         }
-        return this.userGiftListNull()
+        return this.loading()
     }
 
     render() {
@@ -137,17 +143,17 @@ class MyGiftcode extends Component {
             //         </Body>
             //         <Right />
             //     </Header>
-                <Content refreshControl={this._refreshControl()} >
-                    {isAuth ? (
-                        isUserGiftList ? (
-                            this.userGiftListView()
-                        ) : (
-                                this.loading()
-                        )
+            <ScrollView style={{ flex: 1 }} refreshControl={this._refreshControl()} >
+                {isAuth ? (
+                    this.state.isLoading ? (
+                        this.userGiftListView()
                     ) : (
-                            this.not_login()
+                            this.userGiftListNull()
+                        )
+                ) : (
+                        this.not_login()
                     )}
-                </Content>
+            </ScrollView>
             // </Container>
         );
     }

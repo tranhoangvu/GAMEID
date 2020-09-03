@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { Platform, StyleSheet } from 'react-native';
 import { Header, Left, Right, Body, Title, Button, Text, Icon, Item, Footer, FooterTab, Label } from "native-base";
 
-import NewsScreen from "../NewsScreen";
+import NewsScreen from "../NewsScreen/index";
 import GameListScreen from "../GameListScreen";
 import GiftcodeScreen from "../GiftcodeScreen";
 import ProfileScreen from "../ProfileScreen";
