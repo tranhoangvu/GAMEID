@@ -1117,13 +1117,14 @@ export async function getGiftCode(user_uid, giftcode_event_id, key, device_id, a
     var secure_key = md5(device_id + key);
     var apiURL = apiURL;
     var formData = new FormData();
+    var msg = '';
 
     formData.append('user_uid', user_uid);
     formData.append('giftcode_event_id', giftcode_event_id);
     formData.append('device_id', device_id);
     formData.append('secure_key', secure_key);
 
-    axios({
+    await axios({
         method: 'post',
         url: apiURL + 'getgift_react',
         data: formData,
@@ -1134,30 +1135,15 @@ export async function getGiftCode(user_uid, giftcode_event_id, key, device_id, a
             refeshData("2");
             getGiftCodeEvent();
             // return response.data.msg;
-            alert(response.data.msg);
+            // console.log(response.data.giftcode);
+            msg = response.data.msg;
+            // alert(response.data.msg);
         })
         .catch(function (response) {
             //handle error
             console.log(response);
         });
-
-    // fetch(apiURL + 'getgift_react', {
-    //     method: 'POST',
-    //     header: {
-    //         'Accept': 'application/json',
-    //         'Content-type': 'application/json'
-    //     },
-    //     body: formData
-    // })
-    //     .then((response) => response.json())
-    //     .then((responseJson) => {
-    //         refeshData("2");
-    //         getGiftCodeEvent();
-    //         alert(responseJson.msg);
-    //     })
-    //     .catch((err) => {
-    //         console.log(err);
-    //     });
+    return msg;
 }
 
 export function readNotifi(user_uid, key, device_id, apiURL) {

@@ -17,7 +17,8 @@ import PolicylScreenNavigator from '../components/PolicyScreen';
 import InfoScreenNavigator from '../components/InfoScreen';
 import PhoneLoginScreenNavigator from '../components/LoginScreen/PhoneLogin';
 import PhoneVerificationScreenNavigator from '../components/ProfileScreen/PhoneVerification';
-import NewsDetailsScreenNavigator from '../components/NewsDetailsScreen';
+import NewsDetailsScreenNavigator from '../components/NewsDetailsScreen/index';
+// import NewsDetailsNotifyScreenNavigator from '../components/NewsDetailsScreen/index.notify';
 
 // import { DrawerNavigator } from "react-navigation";
 import { createDrawerNavigator } from 'react-navigation-drawer';
@@ -88,6 +89,11 @@ const HomeScreenRouter = createDrawerNavigator(
             screen: NewsDetailsScreenNavigator
             // screen: () => <PhoneLoginScreenNavigator />
         },
+        // NewsDetailsNotify: {
+        //     screen: NewsDetailsNotifyScreenNavigator,
+        //     path: 'post/:postid',
+        //     // screen: () => <PhoneLoginScreenNavigator />
+        // },
     },
     {
         contentComponent: props => <MenuBar {...props} />

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Share, FlatList, Dimensions, View, Linking, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Modal } from "react-native";
+import { Share, FlatList, View, Linking, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Modal } from "react-native";
 import { Container, Header, Title, Left, Icon, Right, Button, Body, Text, Badge } from "native-base";
 import { connect } from "react-redux";
 import { refeshData } from '../../index.js';
@@ -32,7 +32,7 @@ class NewsScreen extends Component {
             ModalVisibleStatus: false,
             ads_image_link: '',
             ads_link: '',
-            url: "",
+            latestNewURL: this.props.myFirebaseConfig.firebaseConfig.vtcapp_latest_news_api_url || "",
             newsData: this.props.myServerData.newsList || "",
             featureNewsData: this.props.myServerData.featureNewsList || "",
             latestNewsData: this.props.myServerData.latestNewsList || "",
@@ -41,6 +41,7 @@ class NewsScreen extends Component {
             isFeatureNewsList: this.props.myServerData.isFeatureNewsList || false,
             isLatestNewsList: this.props.myServerData.isLatestNewsList || false,
             isAdsList: this.props.myServerData.isAdsList || false,
+
         };
     }
 
@@ -54,13 +55,23 @@ class NewsScreen extends Component {
     }
 
     componentWillUnmount() {
+        console.log("news componentWillUnmount");
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        if (this.props.myServerData.featureNewsList !== nextProps.myServerData.featureNewsList) {
+            this.setState({ featureNewsData: nextProps.myServerData.featureNewsList });
+        }
+        if (this.props.myServerData.latestNewsList !== nextProps.myServerData.latestNewsList) {
+            this.setState({ latestNewsData: nextProps.myServerData.latestNewsList });
+        }
     }
 
     async _onRefresh() {
         this.setState({ refreshing: true });
         refeshData("newsData");
-        const url = this.props.myFirebaseConfig.firebaseConfig.vtcapp_latest_news_api_url + "&page=1";
-        await axios.get(url)
+        const url = this.state.latestNewURL + "&page=1";
+        return axios.get(url)
             .then(res => {
                 let data = res.data
                 this.setState({ refreshing: false, latestNewsData: data }) // false isRefreshing flag for disable pull to refresh indicator, and clear all data and store only first page data
@@ -68,7 +79,7 @@ class NewsScreen extends Component {
             .catch(error => {
                 this.setState({ refreshing: false, error: 'Something just went wrong' }) // false isRefreshing flag for disable pull to refresh
             });
-        this.setState({ refreshing: false });
+        // this.setState({ refreshing: false });
         // setTimeout(() => {
         //     refeshData("newsData");
         //     this.setState({ refreshing: false });
@@ -114,11 +125,13 @@ class NewsScreen extends Component {
 
     async fetchMore(page) {
         //stackexchange User API url
-        const url = this.props.myFirebaseConfig.firebaseConfig.vtcapp_latest_news_api_url + "&page=" + page;
+        const url = this.state.latestNewURL + "&page=" + page;
         this.setState({ loading: true })
-        await axios.get(url)
+        // console.log(url);
+        return axios.get(url)
             .then(res => {
                 let listData = this.state.latestNewsData;
+                // console.log('listData');
                 let data = listData.concat(res.data); //concate list with response
                 this.setState({ loading: false, latestNewsData: data });
             })
@@ -243,6 +256,8 @@ class NewsScreen extends Component {
                                 item._embedded["wp:term"][0][0]["name"]
                             }
                             Title={item.title.rendered}
+                            Time={item.date}
+                            Author={item._embedded["author"]["0"].name}
                             source={
                                 item.featured_media != 0
                                     ?
@@ -252,6 +267,7 @@ class NewsScreen extends Component {
 
                                     : require("../../assets/images/img_not_found.jpg")
                             }
+
                         />
                     </TouchableOpacity>
                 </View>
@@ -275,7 +291,7 @@ class NewsScreen extends Component {
                                 .catch(err => console.log(err))
                         }
                     >
-                        <BookMarkShare Time={item.date} />
+                        <BookMarkShare Time={item.date} Author={item._embedded["author"]["0"].name} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -285,7 +301,8 @@ class NewsScreen extends Component {
                 {/* Fetch FeatureNews */}
                 < View >
                     <FlatList
-                        data={this.props.myServerData.featureNewsList}
+                        // data={this.props.myServerData.featureNewsList}
+                        data={this.state.featureNewsData}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         renderItem={renderFeature}
@@ -312,46 +329,6 @@ class NewsScreen extends Component {
                         />
                     </View>
                 </View >
-                {/* <List
-                    dataArray={this.props.myServerData.newsList}
-                    renderRow={rowData =>
-                        <ListItem style={{ paddingTop: 5, paddingBottom: 5, paddingRight: 5, marginLeft: 5, marginRight: 5, }}>
-                            <TouchableOpacity
-                                style={styles.row}
-                                onPress={() => this.openNews(rowData.link)}
-                                activeOpacity={0.7}>
-                                <Card style={{
-                                    // shadowOffset: { width: 5, height: 5 },
-                                    width: '100%',
-                                    // borderRadius: 12,
-                                    alignSelf: 'center',
-                                    marginBottom: 10,
-                                }}>
-                                    <CardItem>
-                                        <Image source={{ uri: rowData.better_featured_image.source_url }} style={{ height: 150, width: '100%', flex: 1, resizeMode: 'cover', }} />
-                                    </CardItem>
-                                    <CardItem>
-                                        <Left>
-                                            <Text style={{ flexDirection: 'row', marginLeft: -5 }}>{rowData.title.rendered}</Text>
-                                        </Left>
-                                        <Right>
-                                            <Timestamp time={rowData.date} component={Text} format='date' />
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </TouchableOpacity>
-                        </ListItem>
-                    }
-                />
-                <Right>
-                    <TouchableOpacity
-                        style={styles.row}
-                        onPress={() => this.openNews(this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url + 'page/2/')}
-                        activeOpacity={0.7}
-                    >
-                        <Text style={{ marginTop: 10, marginBottom: 10, }} onPress={() => this.openNews(this.props.myFirebaseConfig.firebaseConfig.vtcapp_news_url + 'page/2/')}>Xem thêm</Text>
-                    </TouchableOpacity>
-                </Right> */}
             </View>
         )
     }
@@ -387,7 +364,6 @@ class NewsScreen extends Component {
     checkAds() {
         // console.log("releaseStatus: " + releaseStatus());
         if (releaseStatus()) {
-            // console.log("isAdsList: " + this.props.myServerData.isAdsList);
             if (this.props.myServerData.isAdsList) {
                 // console.log("adsList: " + this.props.myServerData.adsList);
                 if (this.props.myServerData.adsList != null) {
@@ -402,7 +378,7 @@ class NewsScreen extends Component {
                             ])
                             this.setState({
                                 ads_image_link: this.props.myFirebaseConfig.firebaseConfig.vtcapp_image_url + this.props.myServerData.adsList[0].app_ads_image_link,
-                                ads_link: this.props.myServerData.adsList.app_ads_link
+                                ads_link: this.props.myServerData.adsList[0].app_ads_link
                             });
                             setTimeout(() => {
                                 this.ShowModalFunction(true);

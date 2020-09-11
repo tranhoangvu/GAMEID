@@ -10,11 +10,22 @@ export default class index extends Component {
       >
         <View
           style={{
-            justifyContent: "center",
+            justifyContent: "flex-end",
             flexDirection: "row",
-            marginVertical: 10,
+            // marginVertical: 10,
           }}
         >
+          {/* <View style={{ flex: 0.2 }}>
+            <TextMedium
+              extraStyle={{
+                color: "#8D96A3",
+                fontSize: 10,
+                //justifyContent: "flex-end",
+                // textTransform: "capitalize"
+              }}
+              Text={this.props.Author}
+            />
+          </View>
           <View style={{ flex: 0.85 }}>
             <TextMedium
               extraStyle={{
@@ -25,30 +36,15 @@ export default class index extends Component {
               }}
               Text={<TimeAgo time={this.props.Time} />}
             />
-
-          </View>
-          <View style={{ flex: 0.15, flexDirection: "row" }}>
-
-            <View style={{ flex: 0.5 }}>
-              {/* <TouchableOpacity onPress={this.props.onPressBookmark}>
-                <Icon
-                  name="md-bookmark"
-                  size={18}
-                  style={{
-                    color: "#808080",
-                    marginLeft: 5,
-                    alignSelf: "flex-end"
-                  }}
-                />
-                </TouchableOpacity> */}
-            </View>
-            <View style={{ flex: 0.5, justifyContent: "center" }}>
+          </View> */}
+          <View style={{ flex: 1, flexDirection: "row" }}>
+            <View style={{ flex: 1, justifyContent: "center" }}>
               <Icon
                 name="ios-share-alt"
                 size={18}
                 style={{
                   color: "#808080",
-                  marginRight: 5,
+                  // marginRight: 5,
                   alignSelf: "flex-end"
                 }}
               />

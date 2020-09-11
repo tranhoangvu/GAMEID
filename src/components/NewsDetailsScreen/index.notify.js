@@ -58,21 +58,21 @@ export default class index extends Component {
       forwardButtonEnabled: false,
       scalesPageToFit: true,
       url: "",
-      wpid: 0,
+      wpid: this.props.navigation.state.params.postid || 0,
       isLiked: "",
       refreshing: false,
       isFocused: false
     };
   }
   fetchDetails = () => {
-    console.log("fetchDetails");
+    console.log("fetchDetails: " + this.props.navigation.state.params.postid);
     this.setState({
-      wpid: this.props.navigation.state.params.item.id
+      wpid: this.props.navigation.state.params.postid
     });
     // console.log(this.props.navigation.state.params.item.id);
     return axios.get("https://news.gameid.vn/" +
       "wp-json/wp/v2/posts/" +
-      this.props.navigation.state.params.item.id + "?_embed"
+      this.state.wpid + "?_embed"
     )
       .then(res => {
         this.setState({
@@ -109,7 +109,7 @@ export default class index extends Component {
   _storeData = async () => {
     try {
       var newArr = [];
-      newArr.push(this.props.navigation.state.params.item.id);
+      newArr.push(this.state.dataSource.id);
       console.log("Set");
       console.log(newArr);
       await AsyncStorage.setItem("favorites", JSON.stringify(newArr));
@@ -126,7 +126,7 @@ export default class index extends Component {
     });
     // console.log("-------");
     // console.log(this.state.favorites);
-    if (listOfLikes.includes(this.props.navigation.state.params.item.id)) {
+    if (listOfLikes.includes(this.state.dataSource.id)) {
       this.setState({ isLiked: true });
     } else {
       this.setState({ isLiked: false });
@@ -175,10 +175,10 @@ export default class index extends Component {
       this.props.navigation.addListener("willBlur", () => this.setState({ isFocused: false }))
     ];
     // console.log(this.props.navigation.state.params.item);
-    setTimeout(() => {
-      this.setState({ isLoading: false })
-    }, 500)
-    // this.fetchDetails();
+    // setTimeout(() => {
+    //   this.setState({ isLoading: false })
+    // }, 1000)
+    this.fetchDetails();
     // this._updateList();
     // AdMobInterstitial.setAdUnitID('ca-app-pub-7770856719889795/1700809691');
     // AdMobInterstitial.showAd().catch((e) => {
@@ -250,7 +250,7 @@ export default class index extends Component {
             <FastImage
               style={{ flex: 1 }}
               source={{
-                uri: this.props.navigation.state.params.item.featured_media != 0 ? this.props.navigation.state.params.item._embedded["wp:featuredmedia"]["0"].source_url : require("../../assets/images/img_not_found.jpg"),
+                uri: this.state.dataSource.featured_media != 0 ? this.state.dataSource._embedded["wp:featuredmedia"]["0"].source_url : require("../../assets/images/img_not_found.jpg"),
                 priority: FastImage.priority.high,
                 cache: FastImage.cacheControl.immutable,
               }} >
@@ -291,10 +291,10 @@ export default class index extends Component {
             >
               {/* <Text
                 extraStyle={{ fontSize: 18, color: "#041A33" }}
-                Text={this.props.navigation.state.params.item.title.rendered}
+                Text={dataSource.title.rendered}
               /> */}
               <HTML
-                html={this.props.navigation.state.params.item.title.rendered}
+                html={this.state.dataSource.title.rendered}
                 tagsStyles={{
                   resizeMode: "contain"
                 }}
@@ -315,7 +315,7 @@ export default class index extends Component {
                   <View style={{ marginRight: 5 }}>
                     <HTML
                       html={
-                        this.props.navigation.state.params.item._embedded[
+                        this.state.dataSource._embedded[
                         "wp:term"
                         ][0][0]["name"]
                       }
@@ -339,7 +339,7 @@ export default class index extends Component {
                         // marginTop: 2
                         marginRight: 5
                       }}
-                      Text={this.props.navigation.state.params.item._embedded["author"]["0"].name}
+                      Text={this.state.dataSource._embedded["author"]["0"].name}
                     />
                     <Text
                       extraStyle={{
@@ -350,7 +350,7 @@ export default class index extends Component {
                       }}
                       Text={
                         <TimeAgo
-                          time={this.props.navigation.state.params.item.date}
+                          time={this.state.dataSource.date}
                         />
                       }
                     />
@@ -417,7 +417,7 @@ export default class index extends Component {
                 }
                 return node.children;
               }}
-              html={this.props.navigation.state.params.item.content.rendered}
+              html={this.state.dataSource.content.rendered}
               staticContentMaxWidth={Dimensions.get("window").width}
               imagesMaxWidth={Dimensions.get("window").width - 30}
               onLinkPress={(evt, href) => {

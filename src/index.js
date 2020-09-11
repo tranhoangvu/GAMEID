@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react';
 import firebase from 'react-native-firebase';
-import { ActivityIndicator, StyleSheet, Platform, Alert, BackHandler, Image, ImageBackground, Dimensions } from 'react-native'
+import { ActivityIndicator, StyleSheet, Platform, Alert, BackHandler, Image, ImageBackground, Dimensions, Linking } from 'react-native'
 import { Root } from "native-base";
 import { View, Text } from 'native-base';
 import AppNavigator from "../src/config/routes.js";
@@ -66,6 +66,7 @@ import {
     userCountMess
 } from './reducers/server/serverActions';
 import * as authActions from './reducers/auth/authActions';
+import LinkRoutes from './utils/linkRoutes'
 
 var ls = require('./lib/localStorage');
 
@@ -231,8 +232,8 @@ export function refeshData(flag) {
 
 export default class App extends Component {
 
-    constructor() {
-        super();
+    constructor(properties) {
+        super(properties);
         this.unsubscriber = null;
         this.state = {
             isLoading: true,
@@ -244,17 +245,11 @@ export default class App extends Component {
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
         };
-    }
-
-    componentDidMount() {
-        if (__DEV__) {
-            firebase.config().enableDeveloperMode();
-        }
         //Remove this method to stop OneSignal Debugging 
         // OneSignal.setLogLevel(6, 0);
 
         // Replace 'YOUR_ONESIGNAL_APP_ID' with your OneSignal App ID.
-        OneSignal.init("c580d75c-b7c3-4d45-92bb-30010b16f3bd", { kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: false, kOSSettingsKeyInFocusDisplayOption: 2 });
+        OneSignal.init("6595e6bc-0a1a-4d36-9cfb-39ae871b6535", { kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: false, kOSSettingsKeyInFocusDisplayOption: 2 });
         OneSignal.inFocusDisplaying(2); // Controls what should happen if a notification is received while the app is open. 2 means that the notification will go directly to the device's notification center.
 
         // The promptForPushNotifications function code will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission (See step below)
@@ -263,10 +258,20 @@ export default class App extends Component {
         OneSignal.addEventListener('received', this.onReceived);
         OneSignal.addEventListener('opened', this.onOpened);
         OneSignal.addEventListener('ids', this.onIds);
+    }
+
+    componentDidMount() {
+        if (__DEV__) {
+            firebase.config().enableDeveloperMode();
+        }
+
+        // var postid = '4578';
+        // this.props.navigation.navigate("NewsDetailsNotify", { postid })
 
         store.dispatch(setPlatform(Platform.OS));
         store.dispatch(setUniqueId(uniqueId));
         store.dispatch(setStore(store));
+
         this.unsubscribe = firebase.auth().onUserChanged(this.onUserChanged);
         BackHandler.addEventListener('hardwareBackPress', this.backPressed);
 
@@ -276,6 +281,7 @@ export default class App extends Component {
         NetInfo.fetch().then(state => {
             if (state.isConnected) this.setState({ isConnected: 'true' });
         });
+
         setTimeout(() => {
             this.appAsync();
         }, 1000);
@@ -475,11 +481,25 @@ export default class App extends Component {
         console.log('Data: ', openResult.notification.payload.additionalData);
         console.log('isActive: ', openResult.notification.isAppInFocus);
         console.log('openResult: ', openResult);
+        // if (!openResult.notification.isAppInFocus) {
+        var launchURL = openResult.notification.payload.launchURL;
+        const path = launchURL.split(':/')[1];
+        LinkRoutes(path);
+        // this.handleOpenURL(launchURL);
+        // }
     }
 
     onIds(device) {
         store.dispatch(setOneSignal(device));
         // console.log('Device info: ', device);
+    }
+
+    handleOpenURL(url) {
+        // var postid_temp = launchURL.split("/");
+        // var postid = postid_temp[postid_temp.length - 1];
+        // console.log('postid: ' + postid);
+        const path = url.split(':/')[1];
+        LinkRoutes(path);
     }
 
     loading() {

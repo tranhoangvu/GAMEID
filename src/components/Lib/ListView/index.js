@@ -4,7 +4,8 @@ import HTML from "react-native-render-html";
 import truncate from 'truncate-html';
 import { fonts } from "../../../utils/fonts";
 import FastImage from 'react-native-fast-image';
-
+import TextMedium from '../TextMedium/index';
+import TimeAgo from "react-native-timeago";
 export default class index extends Component {
 
   render() {
@@ -46,14 +47,6 @@ export default class index extends Component {
               }} />
           </View>
           <View style={{ flexDirection: "column", flex: 1, marginLeft: 10 }}>
-            {/* <TextSemiBold
-              Text={this.props.Categories}
-              extraStyle={{
-                fontSize: 10,
-                color: "#768290",
-                justifyContent: "flex-start"
-              }}
-            /> */}
             <HTML
               html={this.props.Categories}
               tagsStyles={{
@@ -69,27 +62,38 @@ export default class index extends Component {
 
               }}
             />
-            {/* <TextMedium
-              extraStyle={{
-                color: "#041A33",
-                fontSize: 12,
-                justifyContent: "flex-start",
-                lineHeight: 15,
-                marginVertical: 5
-              }}
-              numberOfLines={3}
-              Text={this.props.Title}
-            /> */}
-            <View style={{ marginVertical: 2 }} />
-            <HTML
-              html={truncate(this.props.Title, {
-                length: 75,
-                stripTags: true
-              })}
-              tagsStyles={tagsStyles}
-              baseFontStyle={baseFontStyle}
-              numberOfLines={1}
-            />
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: -5 }}>
+              <TextMedium
+                extraStyle={{
+                  color: "#8D96A3",
+                  fontSize: 10,
+                  marginRight: 10,
+                  //justifyContent: "flex-end",
+                  // textTransform: "capitalize"
+                }}
+                Text={this.props.Author}
+              />
+              <TextMedium
+                extraStyle={{
+                  color: "#8D96A3",
+                  fontSize: 10,
+                  //justifyContent: "flex-end",
+                  // textTransform: "capitalize"
+                }}
+                Text={<TimeAgo time={this.props.Time} />}
+              />
+            </View>
+            <View style={{ flex: 1, marginTop: -10 }} >
+              <HTML
+                html={truncate(this.props.Title, {
+                  length: 60,
+                  stripTags: true
+                })}
+                tagsStyles={tagsStyles}
+                baseFontStyle={baseFontStyle}
+                numberOfLines={1}
+              />
+            </View>
           </View>
         </View>
       </View>

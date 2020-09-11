@@ -43,6 +43,7 @@ class GiftcodeDetailScreen extends Component {
             key: '',
             uniqueId: '',
             ModalVisibleStatus: false,
+            LoadingModalVisibleStatus: false,
             refreshing: false,
             isLoading: false,
         };
@@ -73,6 +74,10 @@ class GiftcodeDetailScreen extends Component {
 
     ShowModalFunction(visible) {
         this.setState({ ModalVisibleStatus: visible });
+    }
+
+    GetCodeModalFunction(visible) {
+        this.setState({ LoadingModalVisibleStatus: visible });
     }
 
     showSlideAnimationDialog(rowData) {
@@ -153,16 +158,34 @@ class GiftcodeDetailScreen extends Component {
         )
     }
 
-    getCode() {
+    async getCode() {
         this.ShowModalFunction(!this.state.ModalVisibleStatus)
+        console.log(this.state.giftcodeData.event_type_id);
         switch (this.state.giftcodeData.event_type_id) {
             case "1":
                 console.log("case 1");
-                getGiftCode(this.state.uid, this.state.giftcodeData.giftcode_event_id, this.state.key, this.state.uniqueId, this.props.appFire.firebaseConfig.vtcapp_api_url);
+                this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus)
+                await getGiftCode(this.state.uid, this.state.giftcodeData.giftcode_event_id, this.state.key, this.state.uniqueId, this.props.appFire.firebaseConfig.vtcapp_api_url)
+                    .then((msg) => {
+                        console.log(msg);
+                        this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus)
+                        alert(msg);
+                    });
                 break;
 
             case "2":
-                this.shareLinkWithShareDialog();
+                console.log("case 2");
+                await this.shareLinkWithShareDialog().then((result) => {
+                    if (result) {
+                        this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus);
+                        getGiftCode(this.state.uid, this.state.giftcodeData.giftcode_event_id, this.state.key, this.state.uniqueId, this.props.appFire.firebaseConfig.vtcapp_api_url)
+                            .then((msg) => {
+                                console.log(msg);
+                                this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus)
+                                alert(msg);
+                            });
+                    }
+                });
                 break;
 
             case "3":
@@ -178,15 +201,16 @@ class GiftcodeDetailScreen extends Component {
         }
     }
 
-    shareLinkWithShareDialog() {
+    async shareLinkWithShareDialog() {
         var tmp = this;
-        const uid = this.state.uid;
-        const giftcode_event_id = this.state.giftcodeData.giftcode_event_id;
-        const key = this.state.key;
-        const uniqueId = this.state.uniqueId;
-        const apiURL = this.props.appFire.firebaseConfig.vtcapp_api_url;
+        // const uid = this.state.uid;
+        // const giftcode_event_id = this.state.giftcodeData.giftcode_event_id;
+        // const key = this.state.key;
+        // const uniqueId = this.state.uniqueId;
+        // const apiURL = this.props.appFire.firebaseConfig.vtcapp_api_url;
+        var isShare = false;
 
-        ShareDialog.canShow(this.state.shareLinkContent).then(
+        await ShareDialog.canShow(this.state.shareLinkContent).then(
             function (canShow) {
                 if (canShow) {
                     return ShareDialog.show(tmp.state.shareLinkContent);
@@ -196,15 +220,47 @@ class GiftcodeDetailScreen extends Component {
             function (result) {
                 if (result.isCancelled) {
                     alert('Bạn đã hủy chia sẽ, hãy chia sẽ thông tin và nhận ngay Giftcode');
+                    isShare = false;
                 } else {
-                    getGiftCode(uid, giftcode_event_id, key, uniqueId, apiURL);
+                    isShare = true;
+                    // this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus);
+                    // getGiftCode(uid, giftcode_event_id, key, uniqueId, apiURL)
+                    //     .then((result) => {
+                    //         console.log(result);
+                    //         this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus)
+                    //         alert("Giftcode của bạn là " + result.trim() + ". Được lưu vào trong Túi Giftcode!");
+                    //     });
                 }
             },
             function (error) {
                 alert('Lỗi chia sẽ, vui lòng thử lại');
+                isShare = false;
             }
         );
-        return
+        return isShare;
+    }
+
+    loadingGetCode() {
+        var modalBackgroundStyle = {
+            backgroundColor: this.state.LoadingModalVisibleStatus ? 'rgba(0, 0, 0, 0.5)' : '#f5fcff',
+        };
+        return (
+            <View style={styles.LoadingMainContainer}>
+                <Modal
+                    transparent={true}
+                    animationType={"fade"}
+                    visible={this.state.LoadingModalVisibleStatus}
+                    supportedOrientations={['portrait', 'landscape']}
+                    onRequestClose={() => { this.GetCodeModalFunction(!this.state.LoadingModalVisibleStatus) }} >
+                    <View style={[styles.containerModal, modalBackgroundStyle]}>
+                        <View style={styles.LoadingModalInsideView}>
+                            <ActivityIndicator size="large" color="#fff" />
+                            <Text style={styles.LoadngTextStyle}>Đang nhận code...</Text>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+        )
     }
 
     loading() {
@@ -305,6 +361,7 @@ class GiftcodeDetailScreen extends Component {
                 <ScrollView style={{ flex: 1 }} refreshControl={this._refreshControl()} >
                     <View style={styles.giftview}>
                         {this.giftcodeDialog()}
+                        {this.loadingGetCode()}
                         {this.state.isLoading ? (
                             this.giftListView()
                         ) : (
@@ -349,6 +406,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    LoadingMainContainer: {
+        flex: 1,
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 999,
+    },
     ModalInsideView: {
         alignItems: 'center',
         backgroundColor: "#fff",
@@ -358,10 +422,21 @@ const styles = StyleSheet.create({
         borderWidth: 0.1,
         borderColor: '#000',
     },
+    LoadingModalInsideView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
+        height: 75,
+        width: 150,
+    },
     TextStyle: {
         marginTop: 10,
         fontSize: 16,
         color: "#000",
+    },
+    LoadngTextStyle: {
+        fontSize: 14,
+        color: "#fff",
     },
     ModalButton: {
         flexDirection: 'row',

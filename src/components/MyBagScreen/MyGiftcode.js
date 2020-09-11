@@ -40,7 +40,7 @@ class MyGiftcode extends Component {
     }
 
     async writeToClipboard(giftcode) {
-        await Clipboard.setString(giftcode);
+        await Clipboard.setString(giftcode.trim());
         Alert.alert(
             'Thông báo',
             'Đã copy code vào bộ nhớ!',
