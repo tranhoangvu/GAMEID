@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { AppRegistry, View, StatusBar, StyleSheet, Dimensions, Linking, DeviceEventEmitter, Platform, TouchableOpacity } from "react-native";
 import WebView from 'react-native-webview';
 import { Container, Header, Title, Button, Icon, Content, Right, Left, Body, Card, CardItem, Text } from 'native-base';
+import Orientation from 'react-native-orientation';
 
 const styles = StyleSheet.create({
     container: {
@@ -26,7 +27,8 @@ class H5PlayScreen extends Component {
         super();
         this.state = {
             width: Dimensions.get('window').width,
-            height: Dimensions.get('window').height - 20
+            height: Dimensions.get('window').height - 20,
+            isFocused: false
         }
     }
 
@@ -34,10 +36,36 @@ class H5PlayScreen extends Component {
         this._orientationSubscription = DeviceEventEmitter.addListener(
             'namedOrientationDidChange', this._onOrientationChange,
         );
+        // const initial = Orientation.getInitialOrientation();
+        // this.subs = [
+        //     this.props.navigation.addListener("didFocus", () => Orientation.lockToLandscape()),
+        //     this.props.navigation.addListener("willBlur", () => Orientation.lockToPortrait())
+        // ];
+        console.log(initial);
+        // if (initial === 'PORTRAIT') {
+        //     Orientation.lockToLandscape();
+        // }
+        Orientation.addOrientationListener(this._orientationDidChange);
     }
 
     componentWillUnmount() {
         this._orientationSubscription.remove();
+        // this.subs.forEach(sub => sub.remove());
+        // Orientation.getOrientation((err, orientation) => {
+        //     console.log(`Current Device Orientation: ${orientation}`);
+        // });
+
+
+        // Remember to remove listener
+        // Orientation.removeOrientationListener(this._orientationDidChange);
+    }
+
+    _orientationDidChange = (orientation) => {
+        if (orientation === 'LANDSCAPE') {
+            // do something with landscape layout
+        } else {
+            // do something with portrait layout
+        }
     }
 
     _onOrientationChange = (orientation: Object) => {

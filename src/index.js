@@ -19,6 +19,7 @@ import { setStore } from './reducers/global/globalActions';
 import { fetchData } from './reducers/firebase/firebaseActions';
 
 import configureStore from './lib/configureStore';
+import { checkInternetConnection, offlineActionCreators, ReduxNetworkProvider } from 'react-native-offline';
 
 import FireInitialState from './reducers/firebase/firebaseInitialState';
 import AutInitialState from './reducers/auth/authInitialState';
@@ -543,7 +544,9 @@ export default class App extends Component {
             return (
                 <Provider store={store}>
                     <Root>
-                        <AppNavigator />
+                        <ReduxNetworkProvider>
+                            <AppNavigator />
+                        </ReduxNetworkProvider>
                     </Root>
                 </Provider>
             );

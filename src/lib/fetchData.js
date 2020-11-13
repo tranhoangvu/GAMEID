@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import firebase from 'react-native-firebase';
 import FormData from 'form-data';
 import md5 from 'md5';
@@ -221,8 +222,10 @@ async function getAdsListData(store) {
     formData.append('device_id', device_id);
     formData.append('secure_key', secure_key);
 
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'adslist_react',
         data: formData,
         // headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -278,9 +281,10 @@ async function getAdsListData(store) {
 async function getFeatureNewsListData(store) {
     var newsURL = store.getState().firebase.firebaseConfig.vtcapp_news_api_url;
     var featureNewsURL = store.getState().firebase.firebaseConfig.vtcapp_feature_news_api_url;
-
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'get',
+        timeout: 1000, // default is `0` (no timeout)
         url: featureNewsURL,// + "posts?_embed&per_page=5",
         // headers: { 'Content-Type': 'multipart/form-data' }
     })
@@ -300,9 +304,10 @@ async function getFeatureNewsListData(store) {
 async function getLatestNewsListData(store) {
     var newsURL = store.getState().firebase.firebaseConfig.vtcapp_news_api_url;
     var latestNewsURL = store.getState().firebase.firebaseConfig.vtcapp_latest_news_api_url;
-
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'get',
+        timeout: 1000, // default is `0` (no timeout)
         url: latestNewsURL,// + "posts?_embed&per_page=20",
         // headers: { 'Content-Type': 'multipart/form-data' }
     })
@@ -346,6 +351,7 @@ async function getNewsListData(store) {
     // ls.set('getNewsListData', newsData);
     await axios({
         method: 'get',
+        timeout: 1000, // default is `0` (no timeout)
         url: newsURL + "posts?_embed",
         // headers: { 'Content-Type': 'multipart/form-data' }
     })
@@ -398,9 +404,10 @@ async function getGameListData(store) {
     formData.append('device_id', device_id);
     formData.append('secure_key', secure_key);
     formData.append('platform', platform);
-
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'gamelist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -452,15 +459,18 @@ async function getGameListData(store) {
 async function getGameH5ListData(store) {
     var key = store.getState().firebase.firebaseConfig.vtcapp_secure_key;
     var apiURL = store.getState().firebase.firebaseConfig.vtcapp_api_url;
+    var platform = store.getState().device.platform;
     var device_id = store.getState().device.uniqueId;
     var secure_key = md5(device_id + key);
 
     var formData = new FormData();
     formData.append('device_id', device_id);
     formData.append('secure_key', secure_key);
-
+    formData.append('platform', platform);
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'gameh5_list_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -516,8 +526,10 @@ async function getGiftListData(store) {
     formData.append('secure_key', secure_key);
     formData.append('platform', platform);
     // console.log(formData);
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'post',
+        timeout: 30000, // default is `0` (no timeout)
         url: apiURL + 'giftlist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -568,6 +580,7 @@ async function getNotificationListData(store) {
 
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'usermesslist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -614,9 +627,10 @@ async function getUserGiftListData(store) {
     formData.append('user_uid', user_uid);
     formData.append('device_id', device_id);
     formData.append('secure_key', secure_key);
-
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'usergiftlist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -625,8 +639,7 @@ async function getUserGiftListData(store) {
             //handle success
             store.dispatch(getUserGiftList(response.data));
             ls.set('getUserGiftListData', response.data);
-            console.log(response.data);
-
+            // console.log(response.data);
         })
         .catch(function (response) {
             //handle error
@@ -667,6 +680,7 @@ export async function getUserTransactionListData(store) {
 
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'usertransactionlist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -716,6 +730,7 @@ export async function getUserCardListData(store) {
 
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'usercardlist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -765,6 +780,7 @@ async function userCountMessData(store) {
 
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'usercountmess_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -838,6 +854,7 @@ export async function setUserProfileData(store) {
 
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'newuser_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -890,9 +907,10 @@ export function updateEmailVerifiedData(store) {
 
     axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'update_email_verified_react',
         data: formData,
-        headers: { 'Content-Type': 'multipart/form-data' }
+        // headers: { 'Content-Type': 'multipart/form-data' }
     })
         .then(function (response) {
             //handle success
@@ -937,6 +955,7 @@ export function updateTransactionData(store, transactionID) {
 
     axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'update_transaction_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -983,6 +1002,7 @@ export function updatePhoneNumberData(store, phoneNumber) {
     if (phoneNumber !== null) {
         axios({
             method: 'post',
+            timeout: 1000, // default is `0` (no timeout)
             url: apiURL + 'update_phone_number_react',
             data: formData,
             // headers: { 'Content-Type': 'multipart/form-data' }
@@ -1034,6 +1054,7 @@ export function updateFirebaseTokenData(store) {
     if (device_firebase_token !== '') {
         axios({
             method: 'post',
+            timeout: 1000, // default is `0` (no timeout)
             url: apiURL + 'update_firebase_token_react',
             data: formData,
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -1076,9 +1097,10 @@ async function getGameGiftListData(store) {
     formData.append('device_id', device_id);
     formData.append('secure_key', secure_key);
     formData.append('platform', platform);
-
+    axiosRetry(axios, { retries: 3 });
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'gamegiftlist_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -1126,6 +1148,7 @@ export async function getGiftCode(user_uid, giftcode_event_id, key, device_id, a
 
     await axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'getgift_react',
         data: formData,
         // headers: { 'Content-Type': 'multipart/form-data' }
@@ -1157,6 +1180,7 @@ export function readNotifi(user_uid, key, device_id, apiURL) {
 
     axios({
         method: 'post',
+        timeout: 1000, // default is `0` (no timeout)
         url: apiURL + 'update_mess_react',
         data: formData,
         headers: { 'Content-Type': 'multipart/form-data' }

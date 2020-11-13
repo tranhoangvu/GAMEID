@@ -5,6 +5,7 @@ import global from './global/globalReducer';
 import server from './server/serverReducer';
 
 import { combineReducers } from 'redux';
+import { reducer as network } from 'react-native-offline';
 
 /**
  * ## CombineReducers
@@ -17,7 +18,8 @@ const rootReducer = combineReducers({
     auth,
     device,
     global,
-    server
+    server,
+    network
 })
 
 export default rootReducer

@@ -146,7 +146,7 @@ class H5Game extends Component {
             </ListItem>
         );
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, width: '100%', height: '100%' }}>
                 <FlatList
                     data={this.props.appGameList.gameH5List}
                     renderItem={renderGameH5List}
